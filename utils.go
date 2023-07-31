@@ -11,11 +11,9 @@ import (
 func executeShellCommand(command []string, home string, sender string, defaults bool) (string, error) {
 	fullCommand := command
 	if home != "" {
-		//fullCommand = append(fullCommand, fmt.Sprintf(" --home %s", home))
 		fullCommand = append(fullCommand, "--home", home)
 	}
 	if sender != "" {
-		//fullCommand = append(fullCommand, fmt.Sprintf(" --from %s", sender))
 		fullCommand = append(fullCommand, "--from", sender)
 	}
 	if defaults {
@@ -24,7 +22,9 @@ func executeShellCommand(command []string, home string, sender string, defaults 
 
 	cmd := exec.Command("evmosd", fullCommand...)
 	output, err := cmd.CombinedOutput()
-	fmt.Println("Got output: ", string(output))
+	if err != nil {
+		fmt.Println(string(output))
+	}
 	return string(output), err
 }
 

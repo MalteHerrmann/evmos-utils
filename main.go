@@ -11,15 +11,18 @@ import (
 const (
 	// The chain ID of the node that will be upgraded.
 	chainID = "evmos_9000-1"
-	// The home directory of the node that will be upgraded.
-	evmosdHome = "~/.tmp-evmosd"
 	// The amount of blocks in the future that the upgrade will be scheduled.
 	deltaHeight = 15
 	// The amount of fees to be sent with a default transaction.
 	defaultFees int = 1e18 // 1 aevmos
 	// The denomination used for the local node.
 	denom = "aevmos"
+	// proposalID is the ID of the proposal that will be created.
+	proposalID = 1
 )
+
+// evmosdHome is the home directory of the local node.
+var evmosdHome string
 
 var (
 	// The default flags that will be used for all commands related to governance.
@@ -35,6 +38,12 @@ var (
 )
 
 func main() {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("Error getting home directory: %v", err)
+	}
+	evmosdHome = fmt.Sprintf("%s/.tmp-evmosd", homeDir)
+
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run upgrade-local-node.go <target_version>")
 		os.Exit(1)
@@ -63,22 +72,23 @@ func upgradeLocalNode(targetVersion string) {
 	if err != nil {
 		log.Fatalf("Error executing upgrade proposal: %v", err)
 	}
-
 	fmt.Printf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
+
 	wait(2)
-	if err = voteForProposal(1, "dev0"); err != nil {
+	if err = voteForProposal(proposalID, "dev0"); err != nil {
 		log.Fatalf("Error voting for upgrade: %v", err)
 	}
 
 	wait(2)
-	if err = voteForProposal(1, "dev1"); err != nil {
+	if err = voteForProposal(proposalID, "dev1"); err != nil {
 		log.Fatalf("Error voting for upgrade: %v", err)
 	}
 
 	wait(2)
-	if err = voteForProposal(1, "dev2"); err != nil {
+	if err = voteForProposal(proposalID, "dev2"); err != nil {
 		log.Fatalf("Error voting for upgrade: %v", err)
 	}
+	fmt.Printf("Cast all votes for proposal %d.\n", proposalID)
 }
 
 // voteForProposal votes for the proposal with the given ID using the given account.
