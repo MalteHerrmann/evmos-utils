@@ -9,7 +9,7 @@ import (
 // submitUpgradeProposal submits a software upgrade proposal with the given target version and upgrade height.
 func submitUpgradeProposal(targetVersion string, upgradeHeight int) (int, error) {
 	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight)
-	out, err := executeShellCommand(upgradeProposal, evmosdHome, "dev0", true)
+	out, err := executeShellCommand(upgradeProposal, evmosdHome, "dev0", true, false)
 	if err != nil {
 		return 0, err
 	}
@@ -47,6 +47,6 @@ func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []stri
 
 // voteForProposal votes for the proposal with the given ID using the given account.
 func voteForProposal(proposalID int, sender string) error {
-	_, err := executeShellCommand([]string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"}, evmosdHome, sender, true)
+	_, err := executeShellCommand([]string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"}, evmosdHome, sender, true, true)
 	return err
 }

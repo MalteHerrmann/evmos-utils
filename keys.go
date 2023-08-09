@@ -7,7 +7,7 @@ import (
 
 // getKeys returns the list of keys from the current running local node
 func getKeys() ([]string, error) {
-	out, err := executeShellCommand([]string{"keys", "list"}, evmosdHome, "", false)
+	out, err := executeShellCommand([]string{"keys", "list"}, evmosdHome, "", false, false)
 	if err != nil {
 		return nil, err
 	}
