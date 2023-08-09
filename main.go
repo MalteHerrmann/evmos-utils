@@ -17,8 +17,6 @@ const (
 	defaultFees int = 1e18 // 1 aevmos
 	// The denomination used for the local node.
 	denom = "aevmos"
-	// proposalID is the ID of the proposal that will be created.
-	proposalID = 1
 )
 
 // evmosdHome is the home directory of the local node.
@@ -67,34 +65,24 @@ func upgradeLocalNode(targetVersion string) {
 	}
 
 	upgradeHeight := currentHeight + deltaHeight
-	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight)
-	_, err = executeShellCommand(upgradeProposal, evmosdHome, "dev0", true)
+	fmt.Println("Submitting upgrade proposal...")
+	proposalID, err := submitUpgradeProposal(targetVersion, upgradeHeight)
 	if err != nil {
 		log.Fatalf("Error executing upgrade proposal: %v", err)
 	}
 	fmt.Printf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
 
-	wait(2)
-	if err = voteForProposal(proposalID, "dev0"); err != nil {
-		log.Fatalf("Error voting for upgrade: %v", err)
+	availableKeys, err := getKeys()
+	if err != nil {
+		log.Fatalf("Error getting available keys: %v", err)
 	}
-
-	wait(2)
-	if err = voteForProposal(proposalID, "dev1"); err != nil {
-		log.Fatalf("Error voting for upgrade: %v", err)
+	wait(1)
+	for _, key := range availableKeys {
+		if err = voteForProposal(proposalID, key); err != nil {
+			log.Fatalf("Error voting for upgrade: %v", err)
+		}
 	}
-
-	wait(2)
-	if err = voteForProposal(proposalID, "dev2"); err != nil {
-		log.Fatalf("Error voting for upgrade: %v", err)
-	}
-	fmt.Printf("Cast all votes for proposal %d.\n", proposalID)
-}
-
-// voteForProposal votes for the proposal with the given ID using the given account.
-func voteForProposal(proposalID int, sender string) error {
-	_, err := executeShellCommand([]string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"}, evmosdHome, sender, true)
-	return err
+	fmt.Printf("Cast all %d 'yes' votes for proposal %d.\n", len(availableKeys), proposalID)
 }
 
 // wait waits for the specified amount of seconds.
