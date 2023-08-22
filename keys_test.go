@@ -45,3 +45,43 @@ func TestParseKeysFromOut(t *testing.T) {
 		})
 	}
 }
+
+func TestParseDelegationsFromResponse(t *testing.T) {
+	testcases := []struct {
+		name        string
+		out         string
+		expVals     []string
+		expError    bool
+		errContains string
+	}{
+		{
+			name:    "pass",
+			out:     `{"delegation_responses":[{"delegation":{"delegator_address":"evmos1v6jyld5mcu37d3dfe7kjrw0htkc4wu2mxn9y25","validator_address":"evmosvaloper1v6jyld5mcu37d3dfe7kjrw0htkc4wu2mta25tf","shares":"1000000000000000000000.000000000000000000"},"balance":{"denom":"aevmos","amount":"1000000000000000000000"}}],"pagination":{"next_key":null,"total":"0"}}`,
+			expVals: []string{"evmosvaloper1v6jyld5mcu37d3dfe7kjrw0htkc4wu2mta25tf"},
+		},
+		{
+			name:        "fail - no keys",
+			out:         "invalid output",
+			expError:    true,
+			errContains: "error unmarshalling accounts",
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			delegations, err := parseDelegationsFromResponse(tc.out)
+			if tc.expError {
+				require.Error(t, err, "expected error parsing delegations")
+				require.ErrorContains(t, err, tc.errContains, "expected different error")
+			} else {
+				require.NoError(t, err, "unexpected error parsing delegations")
+
+				var vals []string
+				for _, delegation := range delegations {
+					vals = append(vals, delegation.ValidatorAddress)
+				}
+				require.Equal(t, tc.expVals, vals, "expected different validators")
+			}
+		})
+	}
+}

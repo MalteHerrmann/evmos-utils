@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // Account is the type for a single account.
@@ -11,7 +13,7 @@ type Account struct {
 	Type        string `json:"type"`
 	Address     string `json:"address"`
 	PubKey      string `json:"pubkey"`
-	Delegations []string
+	Delegations []stakingtypes.Delegation
 }
 
 // getAccounts returns the list of keys from the current running local node
@@ -51,8 +53,20 @@ func stakingAccounts(accounts []Account) ([]Account, error) {
 }
 
 // parseDelegationsFromResponse parses the delegations from the given response.
-func parseDelegationsFromResponse(out string) ([]string, error) {
-	return nil, nil
+func parseDelegationsFromResponse(out string) ([]stakingtypes.Delegation, error) {
+	var res stakingtypes.QueryDelegatorDelegationsResponse
+
+	err := json.Unmarshal([]byte(out), &res)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling delegations: %w", err)
+	}
+
+	var delegations = make([]stakingtypes.Delegation, len(res.DelegationResponses))
+	for i, delegation := range res.DelegationResponses {
+		delegations[i] = delegation.Delegation
+	}
+
+	return delegations, nil
 }
 
 // parseAccountsFromOut parses the keys from the given output from the keys list command.
