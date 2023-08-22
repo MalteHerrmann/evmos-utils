@@ -47,6 +47,11 @@ func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []stri
 
 // voteForProposal votes for the proposal with the given ID using the given account.
 func voteForProposal(proposalID int, sender string) error {
-	_, err := executeShellCommand([]string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"}, evmosdHome, sender, true, true)
+	_, err := executeShellCommand(
+		[]string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"},
+		evmosdHome,
+		sender,
+		true, true,
+	)
 	return err
 }

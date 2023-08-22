@@ -8,54 +8,39 @@ import (
 
 func TestParseKeysFromOut(t *testing.T) {
 	testcases := []struct {
-		name     string
-		out      string
-		expKeys  []string
-		expError bool
+		name        string
+		out         string
+		expKeys     []string
+		expError    bool
+		errContains string
 	}{
 		{
-			name: "pass",
-			out: `  - address: evmos19mx9kcksequm4m4xume5h0k9fquwgmea3yvu89
-						name: dev0
-						pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AmquZBW+CPcgHKx6D4YRDICzr0MNcRvl9Wm/jJn8wJxs"}'
-						type: local
-					- address: evmos18z7xfs864u49jcv6gkgajpteesjl5d7krpple6
-						name: dev1
-						pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AtY/rqJrmhKbXrQ02xSxq/t9JGgbP2T7HPGTZJIbuT8I"}'
-						type: local
-					- address: evmos12rrt7vcnxvhxad6gzz0vt5psdlnurtldety57n
-						name: dev2
-						pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A544btlGjv4zB/qpWT8dQqlAHrcmgZEvrFSgJnp7Yjt4"}'
-						type: local
-					- address: evmos1dln2gjtsfd2sny6gwdxzyxcsr0uu8sh5nwajun
-						name: testKey1
-						pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"Amja5pRiVw+5vPkozo6Eo20AEbYVVBqOKBi5yP7EbxyJ"}'
-						type: local
-					- address: evmos1qdxgxz9g2la8g9eyjdq4srlpxgrmuqd6ty88zm
-						name: testKey2
-						pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"A+ytKfWmkQiW0c6iOCXSL71e4b5njmJVUd1msONsPEnA"}'
-						type: local
-					- address: evmos1hduvvhjvu0pqu7m97pajymdsupqx3us3ntey9a
-						name: testKey3
-						pubkey: '{"@type":"/ethermint.crypto.v1.ethsecp256k1.PubKey","key":"AsdAPndEVttzhUz5iSm0/FoFxkzB0oZE7DuKf3NjzXkS"}'
-						type: local`,
-			expKeys: []string{"dev0", "dev1", "dev2", "testKey1", "testKey2", "testKey3"},
+			name:    "pass",
+			out:     `[{"name":"dev0","type":"local","address":"evmos16qljjgus9zevcxdjscuf502zy6en427nty78c0","pubkey":"{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A7YjISvuApMJ/OGKVifuVqrUnJYryXPcVAR5zPzP5yz5\"}"},{"name":"dev1","type":"local","address":"evmos16cqwxv4hcqpzc7zd9fd4pw3jr4yf9jxrfr6tj0","pubkey":"{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"A+VsC7GstX+ItZDKvWSmbQrjuvmZ0GenWB46Pi6F0fwL\"}"},{"name":"dev2","type":"local","address":"evmos1ecamqksjl7erx89lextmru88mpy669psjcehlz","pubkey":"{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"Aha/x6t6Uaiw+md5F4XjaPleHTw6toUU9egkWCPm50wk\"}"},{"name":"testKey","type":"local","address":"evmos17slw9hdyxvxypzsdwj9vjg7uedhfw26ksqydye","pubkey":"{\"@type\":\"/ethermint.crypto.v1.ethsecp256k1.PubKey\",\"key\":\"ApDf/TgsVwangM3CciQuAoIgBvo5ZXxPHkA7K2XpeAae\"}"}]`,
+			expKeys: []string{"dev0", "dev1", "dev2", "testKey"},
 		},
 		{
-			name:     "fail - no keys",
-			out:      "invalid output",
-			expError: true,
+			name:        "fail - no keys",
+			out:         "invalid output",
+			expError:    true,
+			errContains: "error unmarshalling accounts",
 		},
 	}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			keys, err := parseKeysFromOut(tc.out)
+			accounts, err := parseAccountsFromOut(tc.out)
 			if tc.expError {
-				require.Error(t, err, "expected error parsing keys")
+				require.Error(t, err, "expected error parsing accounts")
+				require.ErrorContains(t, err, tc.errContains, "expected different error")
 			} else {
-				require.NoError(t, err, "unexpected error parsing keys")
-				require.Equal(t, tc.expKeys, keys)
+				require.NoError(t, err, "unexpected error parsing accounts")
+
+				var keys []string
+				for _, account := range accounts {
+					keys = append(keys, account.Name)
+				}
+				require.Equal(t, tc.expKeys, keys, "expected different keys")
 			}
 		})
 	}
