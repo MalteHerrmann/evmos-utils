@@ -83,26 +83,3 @@ func TestGetEventsFromTxResponse(t *testing.T) {
 		})
 	}
 }
-
-//func TestCheckPrintProto(t *testing.T) {
-//	exampleHash := "F9C69496731969BDC3C03E5D65612AB07E09809E0BDC753A2758B6E70C92FD74"
-//	exampleResponse := sdk.TxResponse{
-//		TxHash: exampleHash,
-//		Height: 0,
-//	}
-//
-//	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-//	clientCtx := client.Context{}.
-//		// TODO: pass output to specific ioWriter to read after executing PrintProto
-//		WithOutput(writer).
-//		WithCodec(encodingConfig.Codec).
-//		WithTxConfig(encodingConfig.TxConfig).
-//		WithOutputFormat("json")
-//
-//	cdc := encodingConfig.Codec
-//	cdc.UnmarshalJSON()
-//
-//	output := clientCtx.PrintProto(&exampleResponse)
-//	expOut := fmt.Sprintf(`{"height":"0","txhash":"%s"}`, exampleHash)
-//	require.Equal(t, expOut, output)
-//}
