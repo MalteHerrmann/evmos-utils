@@ -1,0 +1,12 @@
+Main:
+  allow:
+    - $gostd
+    - github.com/evmos/evmos/v14
+    - github.com/cometbft/cometbft
+    - github.com/cosmos/cosmos-sdk
+    - github.com/MalteHerrmann/upgrade-local-node-go
+
+Tests:
+  allow:
+    - $gostd
+    - github.com/stretchr/testify
