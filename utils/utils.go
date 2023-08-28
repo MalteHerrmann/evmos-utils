@@ -1,27 +1,28 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// evmosdHome is the home directory for the Evmos binary.
-var evmosdHome string
+// defaultEvmosdHome is the home directory for the Evmos binary.
+var defaultEvmosdHome string
 
 func init() {
-	var err error
-	evmosdHome, err = os.UserHomeDir()
+	userHome, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
 	}
+	defaultEvmosdHome = path.Join(userHome, ".tmp-evmosd")
 }
 
 // BinaryCmdArgs are the arguments passed to be executed with the Evmos binary.
@@ -33,10 +34,12 @@ type BinaryCmdArgs struct {
 	Quiet       bool
 }
 
-// ExecuteShellCommand executes a shell command and returns the output and error.
-func ExecuteShellCommand(args BinaryCmdArgs) (string, error) {
+// ExecuteBinaryCmd executes a shell command and returns the output and error.
+func ExecuteBinaryCmd(args BinaryCmdArgs) (string, error) {
 	fullCommand := args.Subcommand
-	if args.Home != "" {
+	if args.Home == "" {
+		fullCommand = append(fullCommand, "--home", defaultEvmosdHome)
+	} else {
 		fullCommand = append(fullCommand, "--home", args.Home)
 	}
 	if args.From != "" {
@@ -56,7 +59,7 @@ func ExecuteShellCommand(args BinaryCmdArgs) (string, error) {
 
 // GetCurrentHeight returns the current block height of the node.
 func GetCurrentHeight() (int, error) {
-	output, err := ExecuteShellCommand(BinaryCmdArgs{
+	output, err := ExecuteBinaryCmd(BinaryCmdArgs{
 		Subcommand: []string{"q", "block", "--node", "http://localhost:26657"},
 	})
 	if err != nil {
@@ -93,7 +96,7 @@ func GetTxEvents(out string) (txEvents []abcitypes.Event, err error) {
 	var txOut string
 	nAttempts := 10
 	for i := 0; i < nAttempts; i++ {
-		txOut, err = ExecuteShellCommand(BinaryCmdArgs{
+		txOut, err = ExecuteBinaryCmd(BinaryCmdArgs{
 			Subcommand: []string{"q", "tx", txHash, "--output=json"},
 			Quiet:      true,
 		})
@@ -101,10 +104,13 @@ func GetTxEvents(out string) (txEvents []abcitypes.Event, err error) {
 		if err == nil {
 			break
 		}
+		if !strings.Contains(txOut, fmt.Sprintf("tx (%s) not found", txHash)) {
+			return nil, fmt.Errorf("unexpected error while querying transaction %s: %w", txHash, err)
+		}
 		time.Sleep(2 * time.Second)
 	}
 
-	if txOut == "" {
+	if strings.Contains(txOut, fmt.Sprintf("tx (%s) not found", txHash)) {
 		return nil, fmt.Errorf("transaction %q not found after %d attempts", txHash, nAttempts)
 	}
 
@@ -117,7 +123,7 @@ func getEventsFromTxResponse(out string) ([]abcitypes.Event, error) {
 	var txRes sdk.TxResponse
 	err := cdc.UnmarshalJSON([]byte(out), &txRes)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling transaction response: %w", err)
+		return nil, fmt.Errorf("error unmarshalling transaction response: %w\n\nresponse: %s", err, out)
 	}
 	return txRes.Events, nil
 }
@@ -129,11 +135,14 @@ type TxHashFromResponse struct {
 
 // getTxHashFromResponse parses the transaction hash from the given response.
 func getTxHashFromResponse(out string) (string, error) {
-	var txHash TxHashFromResponse
-	err := json.Unmarshal([]byte(out), &txHash)
+	var txHash sdk.TxResponse
+	err := cdc.UnmarshalJSON([]byte(out), &txHash)
 	if err != nil {
 		return "", fmt.Errorf("error unpacking transaction hash from json: %w", err)
 	}
 
+	if txHash.Code != 0 {
+		return "", fmt.Errorf("transaction failed with code %d", txHash.Code)
+	}
 	return txHash.TxHash, nil
 }

@@ -19,7 +19,7 @@ type Account struct {
 
 // GetAccounts returns the list of keys from the current running local node
 func GetAccounts() ([]Account, error) {
-	out, err := ExecuteShellCommand(BinaryCmdArgs{
+	out, err := ExecuteBinaryCmd(BinaryCmdArgs{
 		Subcommand: []string{"keys", "list", "--output=json"},
 	})
 	if err != nil {
@@ -39,7 +39,7 @@ func FilterAccountsWithDelegations(accounts []Account) ([]Account, error) {
 	var stakingAccs []Account
 
 	for _, acc := range accounts {
-		out, err := ExecuteShellCommand(BinaryCmdArgs{
+		out, err := ExecuteBinaryCmd(BinaryCmdArgs{
 			Subcommand: []string{"query", "staking", "delegations", acc.Address, "--output=json"},
 		})
 		if err != nil {

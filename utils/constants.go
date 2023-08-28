@@ -5,7 +5,6 @@ import (
 
 	"github.com/evmos/evmos/v14/app"
 	"github.com/evmos/evmos/v14/encoding"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	evmosutils "github.com/evmos/evmos/v14/utils"
 )
 
@@ -23,7 +22,7 @@ var (
 	encodingConfig = encoding.MakeConfig(app.ModuleBasics)
 
 	// The chain ID of the node that will be upgraded.
-	chainID = cmn.DefaultChainID
+	chainID = evmosutils.TestnetChainID + "-1"
 	// defaultFlags are the default flags to be used for the client.
 	defaultFlags = []string{
 		"--chain-id", chainID,

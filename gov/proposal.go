@@ -12,7 +12,7 @@ import (
 // SubmitUpgradeProposal submits a software upgrade proposal with the given target version and upgrade height.
 func SubmitUpgradeProposal(targetVersion string, upgradeHeight int) (int, error) {
 	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight)
-	out, err := utils.ExecuteShellCommand(utils.BinaryCmdArgs{
+	out, err := utils.ExecuteBinaryCmd(utils.BinaryCmdArgs{
 		Subcommand:  upgradeProposal,
 		From:        "dev0",
 		UseDefaults: true,
@@ -28,7 +28,7 @@ func SubmitUpgradeProposal(targetVersion string, upgradeHeight int) (int, error)
 
 	events, err := utils.GetTxEvents(out)
 	if err != nil {
-		panic(err)
+		return 0, fmt.Errorf("error getting tx events: %w", err)
 	}
 
 	return getProposalID(events)
@@ -70,7 +70,7 @@ func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []stri
 
 // VoteForProposal votes for the proposal with the given ID using the given account.
 func VoteForProposal(proposalID int, sender string) error {
-	_, err := utils.ExecuteShellCommand(utils.BinaryCmdArgs{
+	_, err := utils.ExecuteBinaryCmd(utils.BinaryCmdArgs{
 		Subcommand:  []string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"},
 		From:        sender,
 		UseDefaults: true,
