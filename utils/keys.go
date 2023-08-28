@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"encoding/json"
@@ -17,9 +17,11 @@ type Account struct {
 	Delegations []stakingtypes.Delegation `json:"delegations"`
 }
 
-// getAccounts returns the list of keys from the current running local node
-func getAccounts() ([]Account, error) {
-	out, err := executeShellCommand([]string{"keys", "list", "--output=json"}, evmosdHome, "", false, false)
+// GetAccounts returns the list of keys from the current running local node
+func GetAccounts() ([]Account, error) {
+	out, err := ExecuteShellCommand(BinaryCmdArgs{
+		Subcommand: []string{"keys", "list", "--output=json"},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -29,15 +31,17 @@ func getAccounts() ([]Account, error) {
 		return nil, err
 	}
 
-	return stakingAccounts(accounts)
+	return filterAccountsWithDelegations(accounts)
 }
 
-// stakingAccounts filters the given list of accounts for those, which are used for staking.
-func stakingAccounts(accounts []Account) ([]Account, error) {
+// filterAccountsWithDelegations filters the given list of accounts for those, which are used for staking.
+func filterAccountsWithDelegations(accounts []Account) ([]Account, error) {
 	var stakingAccs []Account
 
 	for _, acc := range accounts {
-		out, err := executeShellCommand([]string{"query", "staking", "delegations", acc.Address, "--output=json"}, evmosdHome, "", false, false)
+		out, err := ExecuteShellCommand(BinaryCmdArgs{
+			Subcommand: []string{"query", "staking", "delegations", acc.Address, "--output=json"},
+		})
 		if err != nil {
 			return nil, err
 		}

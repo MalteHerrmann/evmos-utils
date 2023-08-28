@@ -1,25 +1,22 @@
-package main
+package gov
 
 import (
 	"fmt"
-	abcitypes "github.com/cometbft/cometbft/abci/types"
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
 	"strconv"
 	"strings"
+
+	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
 )
 
-var (
-	// cdc is the codec to be used for the client
-	cdc = encodingConfig.Codec
-	// encodingConfig specifies the encoding configuration to be used for the client
-	encodingConfig = encoding.MakeConfig(app.ModuleBasics)
-)
-
-// submitUpgradeProposal submits a software upgrade proposal with the given target version and upgrade height.
-func submitUpgradeProposal(targetVersion string, upgradeHeight int) (int, error) {
+// SubmitUpgradeProposal submits a software upgrade proposal with the given target version and upgrade height.
+func SubmitUpgradeProposal(targetVersion string, upgradeHeight int) (int, error) {
 	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight)
-	out, err := executeShellCommand(upgradeProposal, evmosdHome, "dev0", true, false)
+	out, err := utils.ExecuteShellCommand(utils.BinaryCmdArgs{
+		Subcommand:  upgradeProposal,
+		From:        "dev0",
+		UseDefaults: true,
+	})
 	if err != nil {
 		return 0, err
 	}
@@ -29,7 +26,7 @@ func submitUpgradeProposal(targetVersion string, upgradeHeight int) (int, error)
 	lines := strings.Split(out, "\n")
 	out = lines[len(lines)-1] // last line is json output
 
-	events, err := getTxEvents(out)
+	events, err := utils.GetTxEvents(out)
 	if err != nil {
 		panic(err)
 	}
@@ -71,13 +68,13 @@ func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []stri
 	}
 }
 
-// voteForProposal votes for the proposal with the given ID using the given account.
-func voteForProposal(proposalID int, sender string) error {
-	_, err := executeShellCommand(
-		[]string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"},
-		evmosdHome,
-		sender,
-		true, true,
-	)
+// VoteForProposal votes for the proposal with the given ID using the given account.
+func VoteForProposal(proposalID int, sender string) error {
+	_, err := utils.ExecuteShellCommand(utils.BinaryCmdArgs{
+		Subcommand:  []string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"},
+		From:        sender,
+		UseDefaults: true,
+		Quiet:       true,
+	})
 	return err
 }

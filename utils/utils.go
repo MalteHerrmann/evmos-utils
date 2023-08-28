@@ -1,40 +1,66 @@
-package main
+package utils
 
 import (
 	"encoding/json"
 	"fmt"
-	abcitypes "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"time"
+
+	abcitypes "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// executeShellCommand executes a shell command and returns the output and error.
-func executeShellCommand(command []string, home string, sender string, defaults, quiet bool) (string, error) {
-	fullCommand := command
-	if home != "" {
-		fullCommand = append(fullCommand, "--home", home)
+var (
+	evmosdHome string
+)
+
+func init() {
+	var err error
+	evmosdHome, err = os.UserHomeDir()
+	if err != nil {
+		panic(err)
 	}
-	if sender != "" {
-		fullCommand = append(fullCommand, "--from", sender)
+}
+
+// BinaryCmdArgs are the arguments passed to be executed with the Evmos binary.
+type BinaryCmdArgs struct {
+	Subcommand  []string
+	Home        string
+	From        string
+	UseDefaults bool
+	Quiet       bool
+}
+
+// ExecuteShellCommand executes a shell command and returns the output and error.
+func ExecuteShellCommand(args BinaryCmdArgs) (string, error) {
+	fullCommand := args.Subcommand
+	if args.Home != "" {
+		fullCommand = append(fullCommand, "--home", args.Home)
 	}
-	if defaults {
+	if args.From != "" {
+		fullCommand = append(fullCommand, "--from", args.From)
+	}
+	if args.UseDefaults {
 		fullCommand = append(fullCommand, defaultFlags...)
 	}
 
 	cmd := exec.Command("evmosd", fullCommand...)
 	output, err := cmd.CombinedOutput()
-	if err != nil && !quiet {
+	if err != nil && !args.Quiet {
 		fmt.Println(string(output))
 	}
 	return string(output), err
 }
 
-// getCurrentHeight returns the current block height of the node.
-func getCurrentHeight() (int, error) {
-	output, err := executeShellCommand([]string{"q", "block", "--node", "http://localhost:26657"}, evmosdHome, "", false, false)
+// GetCurrentHeight returns the current block height of the node.
+func GetCurrentHeight() (int, error) {
+	output, err := ExecuteShellCommand(BinaryCmdArgs{
+		Subcommand: []string{"q", "block", "--node", "http://localhost:26657"},
+	})
+
 	if err != nil {
 		return 0, fmt.Errorf("error executing command: %w", err)
 	}
@@ -53,13 +79,13 @@ func getCurrentHeight() (int, error) {
 	return height, nil
 }
 
-// getTxEvents returns the transaction events associated with the transaction, whose hash is contained
+// GetTxEvents returns the transaction events associated with the transaction, whose hash is contained
 // in the given output from a transaction command.
 //
 // It tries to get the transaction hash from the output
 // and then waits for the transaction to be included in a block.
 // It then returns the transaction events.
-func getTxEvents(out string) (txEvents []abcitypes.Event, err error) {
+func GetTxEvents(out string) (txEvents []abcitypes.Event, err error) {
 	txHash, err := getTxHashFromResponse(out)
 	if err != nil {
 		return nil, err
@@ -69,7 +95,11 @@ func getTxEvents(out string) (txEvents []abcitypes.Event, err error) {
 	var txOut string
 	nAttempts := 10
 	for i := 0; i < nAttempts; i++ {
-		txOut, err = executeShellCommand([]string{"q", "tx", txHash, "--output=json"}, evmosdHome, "", false, true)
+		txOut, err = ExecuteShellCommand(BinaryCmdArgs{
+			Subcommand: []string{"q", "tx", txHash, "--output=json"},
+			Quiet:      true,
+		})
+
 		if err == nil {
 			break
 		}

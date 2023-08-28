@@ -1,9 +1,10 @@
-package main
+package utils
 
 import (
+	"testing"
+
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestGetTxHashFromResponse(t *testing.T) {
