@@ -5,23 +5,21 @@
 
 version: 2
 updates:
-  - package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: weekly
-    time: "10:00"
-  open-pull-requests-limit: 10
-  labels:
-  - dependencies
-- package-ecosystem: docker
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "10:00"
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "10:00"
-  open-pull-requests-limit: 10
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Maintain dependencies for npm
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Maintain dependencies for Composer
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
