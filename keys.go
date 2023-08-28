@@ -56,7 +56,7 @@ func stakingAccounts(accounts []Account) ([]Account, error) {
 func parseDelegationsFromResponse(out string) ([]stakingtypes.Delegation, error) {
 	var res stakingtypes.QueryDelegatorDelegationsResponse
 
-	err := json.Unmarshal([]byte(out), &res)
+	err := cdc.UnmarshalJSON([]byte(out), &res)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling delegations: %w", err)
 	}
