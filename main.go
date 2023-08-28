@@ -30,7 +30,7 @@ var (
 		"--gas", "auto",
 		"--fees", fmt.Sprintf("%d%s", defaultFees, denom),
 		"--gas-adjustment", "1.3",
-		"-b", "block",
+		"-b", "sync",
 		"-y",
 	}
 )
