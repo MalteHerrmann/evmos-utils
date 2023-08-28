@@ -1,3 +1,11 @@
+# ----------------------------------
+# Installation
+install:
+	@go install ./...
+
+
+# ----------------------------------
+# Tests
 test: test-unit
 
 test-unit:
