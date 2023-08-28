@@ -128,11 +128,6 @@ func getEventsFromTxResponse(out string) ([]abcitypes.Event, error) {
 	return txRes.Events, nil
 }
 
-// TxHashFromResponse is a helper struct for parsing the transaction hash from the response.
-type TxHashFromResponse struct {
-	TxHash string `json:"txhash"`
-}
-
 // getTxHashFromResponse parses the transaction hash from the given response.
 func getTxHashFromResponse(out string) (string, error) {
 	var txHash sdk.TxResponse
