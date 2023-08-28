@@ -72,17 +72,19 @@ func upgradeLocalNode(targetVersion string) {
 	}
 	fmt.Printf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
 
-	availableKeys, err := getKeys()
+	availableKeys, err := getAccounts()
 	if err != nil {
 		log.Fatalf("Error getting available keys: %v", err)
 	}
 	wait(1)
-	for _, key := range availableKeys {
-		if err = voteForProposal(proposalID, key); err != nil {
-			log.Fatalf("Error voting for upgrade: %v", err)
+	fmt.Println("Voting for upgrade...")
+	for _, acc := range availableKeys {
+		if err = voteForProposal(proposalID, acc.Name); err != nil {
+			fmt.Printf("  - could NOT vote using key: %s\n", acc.Name)
+		} else {
+			fmt.Printf("  - voted using key: %s\n", acc.Name)
 		}
 	}
-	fmt.Printf("Cast all %d 'yes' votes for proposal %d.\n", len(availableKeys), proposalID)
 }
 
 // wait waits for the specified amount of seconds.

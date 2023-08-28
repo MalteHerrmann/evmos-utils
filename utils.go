@@ -12,7 +12,7 @@ import (
 )
 
 // executeShellCommand executes a shell command and returns the output and error.
-func executeShellCommand(command []string, home string, sender string, defaults bool) (string, error) {
+func executeShellCommand(command []string, home string, sender string, defaults, quiet bool) (string, error) {
 	fullCommand := command
 	if home != "" {
 		fullCommand = append(fullCommand, "--home", home)
@@ -26,7 +26,7 @@ func executeShellCommand(command []string, home string, sender string, defaults 
 
 	cmd := exec.Command("evmosd", fullCommand...)
 	output, err := cmd.CombinedOutput()
-	if err != nil {
+	if err != nil && !quiet {
 		fmt.Println(string(output))
 	}
 	return string(output), err
@@ -34,7 +34,7 @@ func executeShellCommand(command []string, home string, sender string, defaults 
 
 // getCurrentHeight returns the current block height of the node.
 func getCurrentHeight() (int, error) {
-	output, err := executeShellCommand([]string{"q", "block", "--node", "http://localhost:26657"}, evmosdHome, "", false)
+	output, err := executeShellCommand([]string{"q", "block", "--node", "http://localhost:26657"}, evmosdHome, "", false, false)
 	if err != nil {
 		return 0, fmt.Errorf("error executing command: %w", err)
 	}
@@ -69,7 +69,7 @@ func getTxEvents(out string) (txEvents []abcitypes.Event, err error) {
 	var txOut string
 	nAttempts := 10
 	for i := 0; i < nAttempts; i++ {
-		txOut, err = executeShellCommand([]string{"q", "tx", txHash, "--output=json"}, evmosdHome, "", false)
+		txOut, err = executeShellCommand([]string{"q", "tx", txHash, "--output=json"}, evmosdHome, "", false, true)
 		if err == nil {
 			break
 		}
