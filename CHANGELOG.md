@@ -39,7 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- [#2](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/2) only vote if account has delegations
+- [#2](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/2) Only vote if account has delegations
 - [#3](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/3) Use broadcast mode `sync` instead of `block`
 - [#4](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/4) Add GH actions and Makefile for testing
 
