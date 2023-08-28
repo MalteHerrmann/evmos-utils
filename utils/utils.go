@@ -12,6 +12,7 @@ import (
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	evmosutils "github.com/evmos/evmos/v14/utils"
 )
 
 // defaultEvmosdHome is the home directory for the Evmos binary.
@@ -46,6 +47,7 @@ func ExecuteBinaryCmd(args BinaryCmdArgs) (string, error) {
 		fullCommand = append(fullCommand, "--from", args.From)
 	}
 	if args.UseDefaults {
+		defaultFlags := getDefaultFlags()
 		fullCommand = append(fullCommand, defaultFlags...)
 	}
 
@@ -55,6 +57,22 @@ func ExecuteBinaryCmd(args BinaryCmdArgs) (string, error) {
 		fmt.Println(string(output))
 	}
 	return string(output), err
+}
+
+// getDefaultFlags returns the default flags to be used for the Evmos binary.
+func getDefaultFlags() []string {
+	chainID := evmosutils.TestnetChainID + "-1"
+
+	defaultFlags := []string{
+		"--chain-id", chainID,
+		"--keyring-backend", "test",
+		"--gas", "auto",
+		"--fees", fmt.Sprintf("%d%s", defaultFees, denom),
+		"--gas-adjustment", "1.3",
+		"-b", "sync",
+		"-y",
+	}
+	return defaultFlags
 }
 
 // GetCurrentHeight returns the current block height of the node.
@@ -86,7 +104,7 @@ func GetCurrentHeight() (int, error) {
 // It tries to get the transaction hash from the output
 // and then waits for the transaction to be included in a block.
 // It then returns the transaction events.
-func GetTxEvents(out string) (txEvents []abcitypes.Event, err error) {
+func GetTxEvents(out string) ([]abcitypes.Event, error) {
 	txHash, err := getTxHashFromResponse(out)
 	if err != nil {
 		return nil, err

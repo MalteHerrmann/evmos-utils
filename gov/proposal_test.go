@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// nolint funlen -- function length is okay for tests
 func TestGetProposalID(t *testing.T) {
 	testcases := []struct {
 		name        string
