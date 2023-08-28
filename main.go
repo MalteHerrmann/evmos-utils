@@ -16,7 +16,7 @@ const deltaHeight = 15
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run upgrade-local-node.go <target_version>")
+		fmt.Println("Usage: upgrade-local-node-go <target_version>")
 		os.Exit(1)
 	}
 
