@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/codec"
 
 	cryptokeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -46,7 +47,7 @@ func FilterAccountsWithDelegations(bin *Binary, accounts []Account) ([]Account, 
 			return nil, err
 		}
 
-		delegations, err := ParseDelegationsFromResponse(bin, out)
+		delegations, err := ParseDelegationsFromResponse(bin.Cdc, out)
 		if err != nil {
 			continue
 		}
@@ -61,10 +62,10 @@ func FilterAccountsWithDelegations(bin *Binary, accounts []Account) ([]Account, 
 }
 
 // ParseDelegationsFromResponse parses the delegations from the given response.
-func ParseDelegationsFromResponse(bin *Binary, out string) ([]stakingtypes.Delegation, error) {
+func ParseDelegationsFromResponse(cdc *codec.ProtoCodec, out string) ([]stakingtypes.Delegation, error) {
 	var res stakingtypes.QueryDelegatorDelegationsResponse
 
-	err := bin.Cdc.UnmarshalJSON([]byte(out), &res)
+	err := cdc.UnmarshalJSON([]byte(out), &res)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling delegations: %w", err)
 	}

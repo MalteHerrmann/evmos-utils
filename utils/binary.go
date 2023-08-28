@@ -16,7 +16,7 @@ import (
 // using a Cosmos SDK-based binary.
 type Binary struct {
 	// Cdc is the codec to be used for the client.
-	Cdc codec.Codec
+	Cdc *codec.ProtoCodec
 	// Home is the home directory of the binary.
 	Home string
 	// Appd is the name of the binary to be executed, e.g. "evmosd".
@@ -61,7 +61,7 @@ func NewEvmosTestingBinary() (*Binary, error) {
 // GetCodec returns the codec to be used for the client.
 //
 //nolint:ireturn // okay to return an interface here
-func GetCodec() codec.Codec {
+func GetCodec() *codec.ProtoCodec {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	return encodingConfig.Codec
+	return encodingConfig.Codec.(*codec.ProtoCodec)
 }

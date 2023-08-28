@@ -10,6 +10,7 @@ import (
 	"time"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	evmosutils "github.com/evmos/evmos/v14/utils"
 )
@@ -100,7 +101,7 @@ func GetCurrentHeight(bin *Binary) (int, error) {
 // and then waits for the transaction to be included in a block.
 // It then returns the transaction events.
 func GetTxEvents(bin *Binary, out string) ([]abcitypes.Event, error) {
-	txHash, err := GetTxHashFromTxResponse(bin, out)
+	txHash, err := GetTxHashFromTxResponse(bin.Cdc, out)
 	if err != nil {
 		return nil, err
 	}
@@ -132,15 +133,15 @@ func GetTxEvents(bin *Binary, out string) ([]abcitypes.Event, error) {
 		return nil, fmt.Errorf("transaction %q not found after %d attempts", txHash, nAttempts)
 	}
 
-	return GetEventsFromTxResponse(bin, txOut)
+	return GetEventsFromTxResponse(bin.Cdc, txOut)
 }
 
 // GetEventsFromTxResponse unpacks the transaction response into the corresponding
 // SDK type and returns the events.
-func GetEventsFromTxResponse(bin *Binary, out string) ([]abcitypes.Event, error) {
+func GetEventsFromTxResponse(cdc *codec.ProtoCodec, out string) ([]abcitypes.Event, error) {
 	var txRes sdk.TxResponse
 
-	err := bin.Cdc.UnmarshalJSON([]byte(out), &txRes)
+	err := cdc.UnmarshalJSON([]byte(out), &txRes)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling transaction response: %w\n\nresponse: %s", err, out)
 	}
@@ -149,10 +150,10 @@ func GetEventsFromTxResponse(bin *Binary, out string) ([]abcitypes.Event, error)
 }
 
 // GetTxHashFromTxResponse parses the transaction hash from the given response.
-func GetTxHashFromTxResponse(bin *Binary, out string) (string, error) {
+func GetTxHashFromTxResponse(cdc *codec.ProtoCodec, out string) (string, error) {
 	var txHash sdk.TxResponse
 
-	err := bin.Cdc.UnmarshalJSON([]byte(out), &txHash)
+	err := cdc.UnmarshalJSON([]byte(out), &txHash)
 	if err != nil {
 		return "", fmt.Errorf("error unpacking transaction hash from json: %w", err)
 	}

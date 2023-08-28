@@ -3,7 +3,6 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/MalteHerrmann/upgrade-local-node-go/testutil"
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
 	"github.com/stretchr/testify/require"
 )
@@ -56,7 +55,7 @@ func TestParseKeysFromOut(t *testing.T) {
 func TestParseDelegationsFromResponse(t *testing.T) {
 	t.Parallel()
 
-	bin := testutil.NewEvmosdBinaryWithCodec()
+	cdc := utils.GetCodec()
 
 	testcases := []struct {
 		name        string
@@ -83,7 +82,7 @@ func TestParseDelegationsFromResponse(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			delegations, err := utils.ParseDelegationsFromResponse(bin, tc.out)
+			delegations, err := utils.ParseDelegationsFromResponse(cdc, tc.out)
 			if tc.expError {
 				require.Error(t, err, "expected error parsing delegations")
 				require.ErrorContains(t, err, tc.errContains, "expected different error")

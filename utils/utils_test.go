@@ -3,7 +3,6 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/MalteHerrmann/upgrade-local-node-go/testutil"
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
@@ -12,7 +11,7 @@ import (
 func TestGetTxHashFromResponse(t *testing.T) {
 	t.Parallel()
 
-	bin := testutil.NewEvmosdBinaryWithCodec()
+	cdc := utils.GetCodec()
 
 	testcases := []struct {
 		name        string
@@ -46,7 +45,7 @@ func TestGetTxHashFromResponse(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			hash, err := utils.GetTxHashFromTxResponse(bin, tc.out)
+			hash, err := utils.GetTxHashFromTxResponse(cdc, tc.out)
 			if tc.expError {
 				require.Error(t, err, "expected error getting tx hash")
 				require.ErrorContains(t, err, tc.errContains, "expected different error")
@@ -61,7 +60,7 @@ func TestGetTxHashFromResponse(t *testing.T) {
 func TestGetEventsFromTxResponse(t *testing.T) {
 	t.Parallel()
 
-	bin := testutil.NewEvmosdBinaryWithCodec()
+	cdc := utils.GetCodec()
 
 	testcases := []struct {
 		name        string
@@ -94,7 +93,7 @@ func TestGetEventsFromTxResponse(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			events, err := utils.GetEventsFromTxResponse(bin, tc.out)
+			events, err := utils.GetEventsFromTxResponse(cdc, tc.out)
 			if tc.expError {
 				require.Error(t, err, "expected error getting tx events")
 				require.ErrorContains(t, err, tc.errContains, "expected different error")
