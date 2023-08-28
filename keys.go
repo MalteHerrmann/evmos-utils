@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 
+	cryptokeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // Account is the type for a single account.
 type Account struct {
-	Name        string `json:"name"`
-	Type        string `json:"type"`
-	Address     string `json:"address"`
-	PubKey      string `json:"pubkey"`
-	Delegations []stakingtypes.Delegation
+	Name        string                    `json:"name"`
+	Type        string                    `json:"type"`
+	Address     string                    `json:"address"`
+	PubKey      string                    `json:"pubkey"`
+	Delegations []stakingtypes.Delegation `json:"delegations"`
 }
 
 // getAccounts returns the list of keys from the current running local node
@@ -73,11 +74,23 @@ func parseDelegationsFromResponse(out string) ([]stakingtypes.Delegation, error)
 
 // parseAccountsFromOut parses the keys from the given output from the keys list command.
 func parseAccountsFromOut(out string) ([]Account, error) {
-	var accounts []Account
-	err := json.Unmarshal([]byte(out), &accounts)
+	var (
+		accounts []Account
+		keys     []cryptokeyring.KeyOutput
+	)
+
+	err := json.Unmarshal([]byte(out), &keys)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling accounts: %w", err)
+		return nil, fmt.Errorf("error unmarshalling keys: %w", err)
 	}
 
+	for _, key := range keys {
+		accounts = append(accounts, Account{
+			Name:    key.Name,
+			Type:    key.Type,
+			Address: key.Address,
+			PubKey:  key.PubKey,
+		})
+	}
 	return accounts, nil
 }
