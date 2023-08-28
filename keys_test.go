@@ -23,7 +23,7 @@ func TestParseKeysFromOut(t *testing.T) {
 			name:        "fail - no keys",
 			out:         "invalid output",
 			expError:    true,
-			errContains: "error unmarshalling accounts",
+			errContains: "error unmarshalling keys",
 		},
 	}
 
