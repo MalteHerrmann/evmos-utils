@@ -3,16 +3,17 @@ on:
   pull_request:
 
 jobs:
-  golangci-lint:
+  golangci:
+    name: lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: technote-space/get-diff-action@v6.1.2
-      with:
-        PATTERNS: |
-            **/**.go
-            go.mod
-            go.sum
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v3.7.0
-      if: env.GIT_DIFF
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Require: The version of golangci-lint to use.
+          version: v1.54
