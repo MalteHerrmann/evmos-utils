@@ -69,7 +69,7 @@ func getTxEvents(out string) (txEvents []abcitypes.Event, err error) {
 	var txOut string
 	nAttempts := 10
 	for i := 0; i < nAttempts; i++ {
-		txOut, err = executeShellCommand([]string{"q", "tx", txHash, "--output=json"}, evmosdHome, "", false, false)
+		txOut, err = executeShellCommand([]string{"q", "tx", txHash, "--output=json"}, evmosdHome, "", false, true)
 		if err == nil {
 			break
 		}

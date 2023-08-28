@@ -37,7 +37,7 @@ func stakingAccounts(accounts []Account) ([]Account, error) {
 	var stakingAccs []Account
 
 	for _, acc := range accounts {
-		out, err := executeShellCommand([]string{"query", "staking", "delegations", acc.Address, "--output=json"}, evmosdHome, "", false, true)
+		out, err := executeShellCommand([]string{"query", "staking", "delegations", acc.Address, "--output=json"}, evmosdHome, "", false, false)
 		if err != nil {
 			return nil, err
 		}
