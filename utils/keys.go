@@ -31,11 +31,11 @@ func GetAccounts() ([]Account, error) {
 		return nil, err
 	}
 
-	return filterAccountsWithDelegations(accounts)
+	return accounts, nil
 }
 
-// filterAccountsWithDelegations filters the given list of accounts for those, which are used for staking.
-func filterAccountsWithDelegations(accounts []Account) ([]Account, error) {
+// FilterAccountsWithDelegations filters the given list of accounts for those, which are used for staking.
+func FilterAccountsWithDelegations(accounts []Account) ([]Account, error) {
 	var stakingAccs []Account
 
 	for _, acc := range accounts {

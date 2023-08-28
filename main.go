@@ -45,13 +45,19 @@ func upgradeLocalNode(targetVersion string) {
 	}
 	fmt.Printf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
 
-	availableKeys, err := utils.GetAccounts()
+	availableAccounts, err := utils.GetAccounts()
 	if err != nil {
 		log.Fatalf("Error getting available keys: %v", err)
 	}
+
+	accsWithDelegations, err := utils.FilterAccountsWithDelegations(availableAccounts)
+	if err != nil {
+		log.Fatalf("Error filtering accounts: %v", err)
+	}
 	wait(1)
+
 	fmt.Println("Voting for upgrade...")
-	for _, acc := range availableKeys {
+	for _, acc := range accsWithDelegations {
 		if err = gov.VoteForProposal(proposalID, acc.Name); err != nil {
 			fmt.Printf("  - could NOT vote using key: %s\n", acc.Name)
 		} else {
