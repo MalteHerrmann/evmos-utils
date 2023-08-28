@@ -3,6 +3,7 @@ package utils_test
 import (
 	"testing"
 
+	"github.com/MalteHerrmann/upgrade-local-node-go/testutil"
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
@@ -11,8 +12,7 @@ import (
 func TestGetTxHashFromResponse(t *testing.T) {
 	t.Parallel()
 
-	bin, err := utils.NewEvmosTestingBinary()
-	require.NoError(t, err, "unexpected error creating binary")
+	bin := testutil.NewEvmosdBinaryWithCodec()
 
 	testcases := []struct {
 		name        string
@@ -61,8 +61,7 @@ func TestGetTxHashFromResponse(t *testing.T) {
 func TestGetEventsFromTxResponse(t *testing.T) {
 	t.Parallel()
 
-	bin, err := utils.NewEvmosTestingBinary()
-	require.NoError(t, err, "unexpected error creating binary")
+	bin := testutil.NewEvmosdBinaryWithCodec()
 
 	testcases := []struct {
 		name        string

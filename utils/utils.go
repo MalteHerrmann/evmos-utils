@@ -140,7 +140,7 @@ func GetTxEvents(bin *Binary, out string) ([]abcitypes.Event, error) {
 func GetEventsFromTxResponse(bin *Binary, out string) ([]abcitypes.Event, error) {
 	var txRes sdk.TxResponse
 
-	err := bin.cdc.UnmarshalJSON([]byte(out), &txRes)
+	err := bin.Cdc.UnmarshalJSON([]byte(out), &txRes)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling transaction response: %w\n\nresponse: %s", err, out)
 	}
@@ -152,7 +152,7 @@ func GetEventsFromTxResponse(bin *Binary, out string) ([]abcitypes.Event, error)
 func GetTxHashFromTxResponse(bin *Binary, out string) (string, error) {
 	var txHash sdk.TxResponse
 
-	err := bin.cdc.UnmarshalJSON([]byte(out), &txHash)
+	err := bin.Cdc.UnmarshalJSON([]byte(out), &txHash)
 	if err != nil {
 		return "", fmt.Errorf("error unpacking transaction hash from json: %w", err)
 	}

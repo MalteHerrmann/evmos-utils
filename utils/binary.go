@@ -15,8 +15,8 @@ import (
 // Binary is a struct to hold the necessary information to execute commands
 // using a Cosmos SDK-based binary.
 type Binary struct {
-	// cdc is the codec to be used for the client.
-	cdc codec.Codec
+	// Cdc is the codec to be used for the client.
+	Cdc codec.Codec
 	// Home is the home directory of the binary.
 	Home string
 	// Appd is the name of the binary to be executed, e.g. "evmosd".
@@ -36,10 +36,10 @@ func NewBinary(home, appd string) (*Binary, error) {
 		return nil, errors.Wrap(err, fmt.Sprintf("binary %q not installed", appd))
 	}
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	cdc := GetCodec()
 
 	return &Binary{
-		cdc:  encodingConfig.Codec,
+		Cdc:  cdc,
 		Home: home,
 		Appd: appd,
 	}, nil
@@ -56,4 +56,12 @@ func NewEvmosTestingBinary() (*Binary, error) {
 	defaultEvmosdHome := path.Join(userHome, ".tmp-evmosd")
 
 	return NewBinary(defaultEvmosdHome, "evmosd")
+}
+
+// GetCodec returns the codec to be used for the client.
+//
+//nolint:ireturn // okay to return an interface here
+func GetCodec() codec.Codec {
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	return encodingConfig.Codec
 }

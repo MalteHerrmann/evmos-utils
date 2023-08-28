@@ -64,7 +64,7 @@ func FilterAccountsWithDelegations(bin *Binary, accounts []Account) ([]Account, 
 func ParseDelegationsFromResponse(bin *Binary, out string) ([]stakingtypes.Delegation, error) {
 	var res stakingtypes.QueryDelegatorDelegationsResponse
 
-	err := bin.cdc.UnmarshalJSON([]byte(out), &res)
+	err := bin.Cdc.UnmarshalJSON([]byte(out), &res)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling delegations: %w", err)
 	}

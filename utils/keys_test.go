@@ -3,6 +3,7 @@ package utils_test
 import (
 	"testing"
 
+	"github.com/MalteHerrmann/upgrade-local-node-go/testutil"
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
 	"github.com/stretchr/testify/require"
 )
@@ -55,8 +56,7 @@ func TestParseKeysFromOut(t *testing.T) {
 func TestParseDelegationsFromResponse(t *testing.T) {
 	t.Parallel()
 
-	bin, err := utils.NewEvmosTestingBinary()
-	require.NoError(t, err, "unexpected error creating binary")
+	bin := testutil.NewEvmosdBinaryWithCodec()
 
 	testcases := []struct {
 		name        string
