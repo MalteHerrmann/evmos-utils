@@ -8,8 +8,10 @@ linters:
   enable-all: true
   disable:
     # unwanted linters
+    - depguard # would have loved to add but doesn't seem to work correctly
     - exhaustruct
     - gomoddirectives
+    - goerr113
     - gomnd
     # discontinued linters
     - deadcode

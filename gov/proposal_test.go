@@ -1,14 +1,17 @@
-package gov
+package gov_test
 
 import (
 	"testing"
 
+	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
 )
 
-// nolint funlen -- function length is okay for tests
+//nolint:funlen // function length is okay for tests
 func TestGetProposalID(t *testing.T) {
+	t.Parallel()
+
 	testcases := []struct {
 		name        string
 		events      []abcitypes.Event
@@ -74,14 +77,16 @@ func TestGetProposalID(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			id, err := getProposalID(tc.events)
+			t.Parallel()
+			propID, err := gov.GetProposalID(tc.events)
 			if tc.expError {
 				require.Error(t, err, "expected error parsing proposal ID")
 				require.ErrorContains(t, err, tc.errContains, "expected different error")
 			} else {
 				require.NoError(t, err, "unexpected error parsing proposal ID")
-				require.Equal(t, tc.expID, id, "expected different proposal ID")
+				require.Equal(t, tc.expID, propID, "expected different proposal ID")
 			}
 		})
 	}
