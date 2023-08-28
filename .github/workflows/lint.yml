@@ -1,0 +1,18 @@
+name: Linters
+on:
+  pull_request:
+
+jobs:
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: technote-space/get-diff-action@v6.1.2
+      with:
+        PATTERNS: |
+            **/**.go
+            go.mod
+            go.sum
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3.7.0
+      if: env.GIT_DIFF
