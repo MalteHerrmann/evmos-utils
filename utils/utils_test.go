@@ -1,9 +1,10 @@
-package main
+package utils
 
 import (
+	"testing"
+
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestGetTxHashFromResponse(t *testing.T) {
@@ -15,9 +16,15 @@ func TestGetTxHashFromResponse(t *testing.T) {
 		errContains string
 	}{
 		{
-			name:    "pass",
+			name:    "pass - successful tx",
 			out:     `{"height":"0","txhash":"F9C69496731969BDC3C03E5D65612AB07E09809E0BDC753A2758B6E70C92FD74","codespace":"","code":0,"data":"","raw_log":"[]","logs":[],"info":"","gas_wanted":"0","gas_used":"0","tx":null,"timestamp":"","events":[]}`,
 			expHash: "F9C69496731969BDC3C03E5D65612AB07E09809E0BDC753A2758B6E70C92FD74",
+		},
+		{
+			name:        "fail - unsuccessful tx",
+			out:         `{"height":"0","txhash":"F9C69496731969BDC3C03E5D65612AB07E09809E0BDC753A2758B6E70C92FD74","codespace":"","code":1,"data":"","raw_log":"[]","logs":[],"info":"","gas_wanted":"0","gas_used":"0","tx":null,"timestamp":"","events":[]}`,
+			expError:    true,
+			errContains: "transaction failed with code",
 		},
 		{
 			name:        "fail - no tx hash",
