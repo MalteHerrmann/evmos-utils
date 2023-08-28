@@ -34,6 +34,7 @@ func getAccounts() ([]Account, error) {
 // stakingAccounts filters the given list of accounts for those, which are used for staking.
 func stakingAccounts(accounts []Account) ([]Account, error) {
 	var stakingAccs []Account
+
 	for _, acc := range accounts {
 		out, err := executeShellCommand([]string{"query", "staking", "delegations", acc.Address, "--output=json"}, evmosdHome, "", false, false)
 		if err != nil {
@@ -55,7 +56,6 @@ func stakingAccounts(accounts []Account) ([]Account, error) {
 // parseDelegationsFromResponse parses the delegations from the given response.
 func parseDelegationsFromResponse(out string) ([]stakingtypes.Delegation, error) {
 	var res stakingtypes.QueryDelegatorDelegationsResponse
-
 	err := cdc.UnmarshalJSON([]byte(out), &res)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling delegations: %w", err)
@@ -71,7 +71,6 @@ func parseDelegationsFromResponse(out string) ([]stakingtypes.Delegation, error)
 
 // parseAccountsFromOut parses the keys from the given output from the keys list command.
 func parseAccountsFromOut(out string) ([]Account, error) {
-	// Unmarshal the output into a slice of accounts
 	var accounts []Account
 	err := json.Unmarshal([]byte(out), &accounts)
 	if err != nil {
