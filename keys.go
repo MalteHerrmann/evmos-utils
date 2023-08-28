@@ -36,7 +36,7 @@ func stakingAccounts(accounts []Account) ([]Account, error) {
 	var stakingAccs []Account
 
 	for _, acc := range accounts {
-		out, err := executeShellCommand([]string{"query", "staking", "delegations", acc.Address, "--output=json"}, evmosdHome, "", false, false)
+		out, err := executeShellCommand([]string{"query", "staking", "delegations", acc.Address, "--output=json"}, evmosdHome, "", false, true)
 		if err != nil {
 			return nil, err
 		}
@@ -47,7 +47,9 @@ func stakingAccounts(accounts []Account) ([]Account, error) {
 		}
 
 		acc.Delegations = delegations
-		stakingAccs = append(stakingAccs, acc)
+		if len(delegations) > 0 {
+			stakingAccs = append(stakingAccs, acc)
+		}
 	}
 
 	return stakingAccs, nil
