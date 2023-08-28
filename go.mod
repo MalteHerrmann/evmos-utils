@@ -1,6 +1,6 @@
 module github.com/MalteHerrmann/upgrade-local-node-go
 
-go 1.20
+go 1.21
 
 require (
 	github.com/cometbft/cometbft v0.37.2
