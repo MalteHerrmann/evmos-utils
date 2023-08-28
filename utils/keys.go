@@ -68,7 +68,7 @@ func parseDelegationsFromResponse(out string) ([]stakingtypes.Delegation, error)
 		return nil, fmt.Errorf("error unmarshalling delegations: %w", err)
 	}
 
-	var delegations = make([]stakingtypes.Delegation, len(res.DelegationResponses))
+	delegations := make([]stakingtypes.Delegation, len(res.DelegationResponses))
 	for i, delegation := range res.DelegationResponses {
 		delegations[i] = delegation.Delegation
 	}

@@ -13,9 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var (
-	evmosdHome string
-)
+// evmosdHome is the home directory for the Evmos binary.
+var evmosdHome string
 
 func init() {
 	var err error
@@ -60,7 +59,6 @@ func GetCurrentHeight() (int, error) {
 	output, err := ExecuteShellCommand(BinaryCmdArgs{
 		Subcommand: []string{"q", "block", "--node", "http://localhost:26657"},
 	})
-
 	if err != nil {
 		return 0, fmt.Errorf("error executing command: %w", err)
 	}
