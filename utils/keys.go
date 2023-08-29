@@ -18,28 +18,35 @@ type Account struct {
 	Delegations []stakingtypes.Delegation `json:"delegations"`
 }
 
-// GetAccounts returns the list of keys from the current running local node.
-func GetAccounts(bin *Binary) ([]Account, error) {
+// GetAccounts is a method to retrieve the binaries keys from the configured
+// keyring backend and stores it in the Binary struct.
+func (bin *Binary) GetAccounts() error {
 	out, err := ExecuteBinaryCmd(bin, BinaryCmdArgs{
 		Subcommand: []string{"keys", "list", "--output=json"},
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	accounts, err := ParseAccountsFromOut(out)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return accounts, nil
+	bin.Accounts = accounts
+
+	return nil
 }
 
 // FilterAccountsWithDelegations filters the given list of accounts for those, which are used for staking.
-func FilterAccountsWithDelegations(bin *Binary, accounts []Account) ([]Account, error) {
+func FilterAccountsWithDelegations(bin *Binary) ([]Account, error) {
 	var stakingAccs []Account
 
-	for _, acc := range accounts {
+	if len(bin.Accounts) == 0 {
+		return nil, fmt.Errorf("no accounts found")
+	}
+
+	for _, acc := range bin.Accounts {
 		out, err := ExecuteBinaryCmd(bin, BinaryCmdArgs{
 			Subcommand: []string{"query", "staking", "delegations", acc.Address, "--output=json"},
 		})

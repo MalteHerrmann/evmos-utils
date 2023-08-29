@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
-	abcitypes "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,16 +14,16 @@ func TestGetProposalID(t *testing.T) {
 
 	testcases := []struct {
 		name        string
-		events      []abcitypes.Event
+		events      []sdk.StringEvent
 		expID       int
 		expError    bool
 		errContains string
 	}{
 		{
 			name: "pass",
-			events: []abcitypes.Event{{
+			events: []sdk.StringEvent{{
 				Type: "submit_proposal",
-				Attributes: []abcitypes.EventAttribute{
+				Attributes: []sdk.Attribute{
 					{Key: "proposal_id", Value: "5"},
 					{Key: "proposal_messages", Value: ",/cosmos.gov.v1.MsgExecLegacyContent"},
 				},
@@ -32,10 +32,10 @@ func TestGetProposalID(t *testing.T) {
 		},
 		{
 			name: "pass - multiple events",
-			events: []abcitypes.Event{
+			events: []sdk.StringEvent{
 				{
 					Type: "message",
-					Attributes: []abcitypes.EventAttribute{
+					Attributes: []sdk.Attribute{
 						{Key: "action", Value: "/cosmos.gov.v1beta1.MsgSubmitProposal"},
 						{Key: "sender", Value: "evmos1vv6hqcxp0w5we5rzdvf4ddhsas5gx0dep8vmv2"},
 						{Key: "module", Value: "gov"},
@@ -43,7 +43,7 @@ func TestGetProposalID(t *testing.T) {
 				},
 				{
 					Type: "submit_proposal",
-					Attributes: []abcitypes.EventAttribute{
+					Attributes: []sdk.Attribute{
 						{Key: "proposal_id", Value: "5"},
 						{Key: "proposal_messages", Value: ",/cosmos.gov.v1.MsgExecLegacyContent"},
 					},
@@ -53,9 +53,9 @@ func TestGetProposalID(t *testing.T) {
 		},
 		{
 			name: "fail - no submit proposal event",
-			events: []abcitypes.Event{{
+			events: []sdk.StringEvent{{
 				Type: "other type",
-				Attributes: []abcitypes.EventAttribute{
+				Attributes: []sdk.Attribute{
 					{Key: "proposal_id", Value: "4"},
 					{Key: "proposal_messages", Value: ",/cosmos.gov.v1.MsgExecLegacyContent"},
 				},
@@ -65,9 +65,9 @@ func TestGetProposalID(t *testing.T) {
 		},
 		{
 			name: "fail - invalid proposal ID",
-			events: []abcitypes.Event{{
+			events: []sdk.StringEvent{{
 				Type: "submit_proposal",
-				Attributes: []abcitypes.EventAttribute{
+				Attributes: []sdk.Attribute{
 					{Key: "proposal_id", Value: "invalid"},
 				},
 			}},
@@ -80,7 +80,7 @@ func TestGetProposalID(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			propID, err := gov.GetProposalID(tc.events)
+			propID, err := gov.GetProposalIDFromSubmitEvents(tc.events)
 			if tc.expError {
 				require.Error(t, err, "expected error parsing proposal ID")
 				require.ErrorContains(t, err, tc.errContains, "expected different error")

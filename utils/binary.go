@@ -21,6 +21,8 @@ type Binary struct {
 	Home string
 	// Appd is the name of the binary to be executed, e.g. "evmosd".
 	Appd string
+	// Accounts are the accounts stored in the local keyring.
+	Accounts []Account
 }
 
 // NewBinary returns a new Binary instance.
