@@ -24,7 +24,6 @@ func (bin *Binary) GetAccounts() error {
 	out, err := ExecuteBinaryCmd(bin, BinaryCmdArgs{
 		Subcommand: []string{"keys", "list", "--output=json"},
 	})
-
 	if err != nil {
 		return err
 	}

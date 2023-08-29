@@ -152,8 +152,8 @@ func GetEventsFromTxResponse(cdc *codec.ProtoCodec, out string) ([]sdk.StringEve
 
 	var events []sdk.StringEvent
 
-	for _, log := range logs {
-		for _, event := range log.Events {
+	for _, msgLog := range logs {
+		for _, event := range msgLog.Events {
 			events = append(events, event)
 		}
 	}
