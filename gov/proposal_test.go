@@ -80,7 +80,7 @@ func TestGetProposalID(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			propID, err := gov.GetProposalID(tc.events)
+			propID, err := gov.GetProposalIDFromSubmitEvents(tc.events)
 			if tc.expError {
 				require.Error(t, err, "expected error parsing proposal ID")
 				require.ErrorContains(t, err, tc.errContains, "expected different error")

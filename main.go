@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"time"
+	"strconv"
 
 	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
@@ -15,14 +15,12 @@ const deltaHeight = 15
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Println("Usage: upgrade-local-node-go <target_version>")
+		log.Printf(
+			"Possible usages:\n" +
+				"  upgrade-local-node-go <target_version>\n" +
+				"  upgrade-local-node-go vote [proposal-id]\n",
+		)
 		os.Exit(1)
-	}
-
-	targetVersion := os.Args[1]
-	if matched, _ := regexp.MatchString(`v\d+\.\d+\.\d(-rc\d+)?`, targetVersion); !matched {
-		log.Println("Invalid target version. Please use the format vX.Y.Z(-rc*).")
-		os.Exit(2)
 	}
 
 	bin, err := utils.NewEvmosTestingBinary()
@@ -30,7 +28,39 @@ func main() {
 		log.Fatalf("Error creating binary: %v", err)
 	}
 
-	upgradeLocalNode(bin, targetVersion)
+	if os.Args[1] == "vote" {
+		var (
+			err        error
+			proposalID int
+		)
+
+		switch len(os.Args) {
+		case 2:
+			proposalID, err = gov.QueryLatestProposalID(bin)
+			if err != nil {
+				log.Fatalf("Error querying latest proposal ID: %v", err)
+			}
+		case 3:
+			proposalID, err = strconv.Atoi(os.Args[2])
+			if err != nil {
+				log.Printf("Invalid proposal ID: %s. Please provide an integer.\n", os.Args[2])
+				os.Exit(2)
+			}
+		default:
+			log.Println("Please provide the proposal ID.")
+			os.Exit(2)
+		}
+
+		gov.SubmitAllVotesForProposal(bin, proposalID)
+	} else {
+		targetVersion := os.Args[1]
+		if matched, _ := regexp.MatchString(`v\d+\.\d+\.\d(-rc\d+)?`, targetVersion); !matched {
+			log.Println("Invalid target version. Please use the format vX.Y.Z(-rc*).")
+			os.Exit(2)
+		}
+
+		upgradeLocalNode(bin, targetVersion)
+	}
 }
 
 // upgradeLocalNode prepares upgrading the local node to the target version
@@ -52,29 +82,5 @@ func upgradeLocalNode(bin *utils.Binary, targetVersion string) {
 
 	log.Printf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
 
-	availableAccounts, err := utils.GetAccounts(bin)
-	if err != nil {
-		log.Fatalf("Error getting available keys: %v", err)
-	}
-
-	accsWithDelegations, err := utils.FilterAccountsWithDelegations(bin, availableAccounts)
-	if err != nil {
-		log.Fatalf("Error filtering accounts: %v", err)
-	}
-
-	wait(1)
-	log.Println("Voting for upgrade...")
-
-	for _, acc := range accsWithDelegations {
-		if err = gov.VoteForProposal(bin, proposalID, acc.Name); err != nil {
-			log.Printf("  - could NOT vote using key: %s\n", acc.Name)
-		} else {
-			log.Printf("  - voted using key: %s\n", acc.Name)
-		}
-	}
-}
-
-// wait waits for the specified amount of seconds.
-func wait(seconds int) {
-	time.Sleep(time.Duration(seconds) * time.Second)
+	gov.SubmitAllVotesForProposal(bin, proposalID)
 }

@@ -164,3 +164,8 @@ func GetTxHashFromTxResponse(cdc *codec.ProtoCodec, out string) (string, error) 
 
 	return txHash.TxHash, nil
 }
+
+// Wait waits for the specified amount of seconds.
+func Wait(seconds int) {
+	time.Sleep(time.Duration(seconds) * time.Second)
+}
