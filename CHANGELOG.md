@@ -35,11 +35,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v0.3.0](https://github.com/MalteHerrmann/upgrade-local-node-go/releases/tag/v0.3.0) - 2023-08-30
+
+### Features
+
+- [#14](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/14) Enable just voting with the binary
 
 ### Improvements
 
-- [#14](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/14) Enable just voting with the binary
 - [#7](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/7) Add linters plus corresponding refactors
 - [#6](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/6) Restructuring and refactoring
 - [#4](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/4) Add GH actions and Makefile for testing
