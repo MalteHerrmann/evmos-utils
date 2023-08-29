@@ -16,3 +16,6 @@ test: test-unit
 
 test-unit:
 	@go test -mod=readonly ./...
+
+test-unit-cover:
+	@go test -mod=readonly -coverprofile=coverage.out ./...
