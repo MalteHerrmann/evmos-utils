@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	cryptokeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -17,16 +18,16 @@ type Account struct {
 	Delegations []stakingtypes.Delegation `json:"delegations"`
 }
 
-// GetAccounts returns the list of keys from the current running local node
-func GetAccounts() ([]Account, error) {
-	out, err := ExecuteBinaryCmd(BinaryCmdArgs{
+// GetAccounts returns the list of keys from the current running local node.
+func GetAccounts(bin *Binary) ([]Account, error) {
+	out, err := ExecuteBinaryCmd(bin, BinaryCmdArgs{
 		Subcommand: []string{"keys", "list", "--output=json"},
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	accounts, err := parseAccountsFromOut(out)
+	accounts, err := ParseAccountsFromOut(out)
 	if err != nil {
 		return nil, err
 	}
@@ -35,18 +36,18 @@ func GetAccounts() ([]Account, error) {
 }
 
 // FilterAccountsWithDelegations filters the given list of accounts for those, which are used for staking.
-func FilterAccountsWithDelegations(accounts []Account) ([]Account, error) {
+func FilterAccountsWithDelegations(bin *Binary, accounts []Account) ([]Account, error) {
 	var stakingAccs []Account
 
 	for _, acc := range accounts {
-		out, err := ExecuteBinaryCmd(BinaryCmdArgs{
+		out, err := ExecuteBinaryCmd(bin, BinaryCmdArgs{
 			Subcommand: []string{"query", "staking", "delegations", acc.Address, "--output=json"},
 		})
 		if err != nil {
 			return nil, err
 		}
 
-		delegations, err := parseDelegationsFromResponse(out)
+		delegations, err := ParseDelegationsFromResponse(bin.Cdc, out)
 		if err != nil {
 			continue
 		}
@@ -60,9 +61,10 @@ func FilterAccountsWithDelegations(accounts []Account) ([]Account, error) {
 	return stakingAccs, nil
 }
 
-// parseDelegationsFromResponse parses the delegations from the given response.
-func parseDelegationsFromResponse(out string) ([]stakingtypes.Delegation, error) {
+// ParseDelegationsFromResponse parses the delegations from the given response.
+func ParseDelegationsFromResponse(cdc *codec.ProtoCodec, out string) ([]stakingtypes.Delegation, error) {
 	var res stakingtypes.QueryDelegatorDelegationsResponse
+
 	err := cdc.UnmarshalJSON([]byte(out), &res)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling delegations: %w", err)
@@ -76,11 +78,11 @@ func parseDelegationsFromResponse(out string) ([]stakingtypes.Delegation, error)
 	return delegations, nil
 }
 
-// parseAccountsFromOut parses the keys from the given output from the keys list command.
-func parseAccountsFromOut(out string) ([]Account, error) {
+// ParseAccountsFromOut parses the keys from the given output from the keys list command.
+func ParseAccountsFromOut(out string) ([]Account, error) {
 	var (
-		accounts []Account
-		keys     []cryptokeyring.KeyOutput
+		accounts = make([]Account, 0)
+		keys     = make([]cryptokeyring.KeyOutput, 0)
 	)
 
 	err := json.Unmarshal([]byte(out), &keys)
@@ -96,5 +98,6 @@ func parseAccountsFromOut(out string) ([]Account, error) {
 			PubKey:  key.PubKey,
 		})
 	}
+
 	return accounts, nil
 }
