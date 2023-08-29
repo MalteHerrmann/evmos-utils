@@ -29,6 +29,11 @@ func main() {
 		log.Fatalf("Error creating binary: %v", err)
 	}
 
+	err = bin.GetAccounts()
+	if err != nil {
+		log.Fatalf("Error getting accounts: %v", err)
+	}
+
 	//nolint:nestif // nesting complexity is fine here, will be reworked with Cobra commands anyway
 	if os.Args[1] == "vote" {
 		proposalID, err := getProposalIDForVoting(bin, os.Args)

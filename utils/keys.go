@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptokeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -20,10 +21,13 @@ type Account struct {
 
 // GetAccounts is a method to retrieve the binaries keys from the configured
 // keyring backend and stores it in the Binary struct.
-func (bin Binary) GetAccounts() error {
-	out, err := ExecuteBinaryCmd(&bin, BinaryCmdArgs{
+func (bin *Binary) GetAccounts() error {
+	log.Println("Getting accounts...")
+
+	out, err := ExecuteBinaryCmd(bin, BinaryCmdArgs{
 		Subcommand: []string{"keys", "list", "--output=json"},
 	})
+
 	if err != nil {
 		return err
 	}
@@ -33,6 +37,7 @@ func (bin Binary) GetAccounts() error {
 		return err
 	}
 
+	log.Printf("Found %d accounts.\n", len(accounts))
 	bin.Accounts = accounts
 
 	return nil
@@ -41,6 +46,10 @@ func (bin Binary) GetAccounts() error {
 // FilterAccountsWithDelegations filters the given list of accounts for those, which are used for staking.
 func FilterAccountsWithDelegations(bin *Binary) ([]Account, error) {
 	var stakingAccs []Account
+
+	if len(bin.Accounts) == 0 {
+		return nil, fmt.Errorf("no accounts found")
+	}
 
 	for _, acc := range bin.Accounts {
 		out, err := ExecuteBinaryCmd(bin, BinaryCmdArgs{

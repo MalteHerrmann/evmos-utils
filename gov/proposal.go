@@ -90,8 +90,15 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 	utils.Wait(1)
 	log.Printf("Voting for proposal %d...\n", proposalID)
 
+	var out string
+
 	for _, acc := range accsWithDelegations {
-		if err = VoteForProposal(bin, proposalID, acc.Name); err != nil {
+		out, err = VoteForProposal(bin, proposalID, acc.Name)
+		if err != nil {
+			if strings.Contains(out, fmt.Sprintf("%d: unknown proposal", proposalID)) {
+				return fmt.Errorf("no proposal with ID %d found", proposalID)
+			}
+
 			log.Printf("  - could NOT vote using key: %s\n", acc.Name)
 		} else {
 			log.Printf("  - voted using key: %s\n", acc.Name)
@@ -130,16 +137,16 @@ func SubmitUpgradeProposal(bin *utils.Binary, targetVersion string, upgradeHeigh
 }
 
 // VoteForProposal votes for the proposal with the given ID using the given account.
-func VoteForProposal(bin *utils.Binary, proposalID int, sender string) error {
-	_, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
+func VoteForProposal(bin *utils.Binary, proposalID int, sender string) (string, error) {
+	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
 		Subcommand:  []string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"},
 		From:        sender,
 		UseDefaults: true,
 		Quiet:       true,
 	})
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to vote for proposal %d", proposalID))
+		return out, errors.Wrap(err, fmt.Sprintf("failed to vote for proposal %d", proposalID))
 	}
 
-	return nil
+	return out, nil
 }
