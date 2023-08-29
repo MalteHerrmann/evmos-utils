@@ -11,7 +11,8 @@ import (
 func TestGetTxHashFromResponse(t *testing.T) {
 	t.Parallel()
 
-	cdc := utils.GetCodec()
+	cdc, ok := utils.GetCodec()
+	require.True(t, ok, "unexpected error getting codec")
 
 	testcases := []struct {
 		name        string
@@ -60,7 +61,8 @@ func TestGetTxHashFromResponse(t *testing.T) {
 func TestGetEventsFromTxResponse(t *testing.T) {
 	t.Parallel()
 
-	cdc := utils.GetCodec()
+	cdc, ok := utils.GetCodec()
+	require.True(t, ok, "unexpected error getting codec")
 
 	testcases := []struct {
 		name        string

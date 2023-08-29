@@ -36,7 +36,10 @@ func NewBinary(home, appd string) (*Binary, error) {
 		return nil, errors.Wrap(err, fmt.Sprintf("binary %q not installed", appd))
 	}
 
-	cdc := GetCodec()
+	cdc, ok := GetCodec()
+	if !ok {
+		return nil, errors.Wrap(err, "failed to get codec")
+	}
 
 	return &Binary{
 		Cdc:  cdc,
@@ -59,9 +62,9 @@ func NewEvmosTestingBinary() (*Binary, error) {
 }
 
 // GetCodec returns the codec to be used for the client.
-//
-//nolint:ireturn // okay to return an interface here
-func GetCodec() *codec.ProtoCodec {
+func GetCodec() (*codec.ProtoCodec, bool) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	return encodingConfig.Codec.(*codec.ProtoCodec)
+	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
+
+	return protoCodec, ok
 }
