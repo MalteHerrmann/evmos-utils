@@ -1,7 +1,6 @@
 package gov
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -9,6 +8,7 @@ import (
 
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/pkg/errors"
 )
 
@@ -48,24 +48,6 @@ func GetProposalIDFromSubmitEvents(events []sdk.StringEvent) (int, error) {
 	return 0, fmt.Errorf("proposal submission event not found")
 }
 
-// ProposalIDsFromProposalsQueryResponse is a type to unpack the output of the proposals query.
-//
-// NOTE: It's necessary to use a custom type, because the output of the proposals query
-// changes between the SDK versions. This helper type allows to be backwards compatible.
-type ProposalIDsFromProposalsQueryResponse struct {
-	Proposals []Proposal `json:"proposals"`
-}
-
-// Proposal is a type to unpack the output of the proposals query representing an individual proposal.
-//
-// NOTE: It's necessary to define ProposalID as a string value, because the output has to be unmarshaled
-// using standard JSON encoding, which can't unpack the contained uint64 values.
-// Using the application codec is not possible, because it is dependent on the Evmos / SDK versions and
-// this tool should work for as many versions as possible.
-type Proposal struct {
-	ProposalID string `json:"id,omitempty"`
-}
-
 // QueryLatestProposalID queries the latest proposal ID.
 func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
@@ -80,9 +62,11 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 		return 0, errors.Wrap(err, "error querying proposals")
 	}
 
-	var res ProposalIDsFromProposalsQueryResponse
+	// NOTE: the SDK CLI command uses the x/gov v1 package
+	// see: https://github.com/cosmos/cosmos-sdk/blob/v0.47.4/x/gov/client/cli/query.go#L151-L159
+	var res govv1types.QueryProposalsResponse
 
-	err = json.Unmarshal([]byte(out), &res)
+	err = bin.Cdc.UnmarshalJSON([]byte(out), &res)
 	if err != nil {
 		return 0, errors.Wrap(err, "error unmarshalling proposals")
 	}
@@ -91,12 +75,7 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 		return 0, errors.New("no proposals found")
 	}
 
-	latestProposalID, err := strconv.Atoi(res.Proposals[len(res.Proposals)-1].ProposalID)
-	if err != nil {
-		return 0, errors.Wrap(err, "error converting proposal ID to integer")
-	}
-
-	return latestProposalID, nil
+	return int(res.Proposals[len(res.Proposals)-1].Id), nil
 }
 
 // SubmitAllVotesForProposal submits a vote for the given proposal ID using all testing accounts.

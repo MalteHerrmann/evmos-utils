@@ -1,14 +1,10 @@
 package gov_test
 
 import (
-	"encoding/json"
-	"strconv"
 	"testing"
 
 	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
-	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/stretchr/testify/require"
 )
 
@@ -94,37 +90,4 @@ func TestGetProposalID(t *testing.T) {
 			}
 		})
 	}
-}
-
-// This function tests if the custom type ProposalIDsFromProposalsQueryResponse
-// is compatible with the output of the proposals query.
-//
-//nolint:paralleltest // only one test included
-func TestProposalIDsFromProposalsQueryResponse(t *testing.T) {
-	cdc, ok := utils.GetCodec()
-	require.True(t, ok, "failed to get codec")
-
-	sdkProposals := govv1types.Proposals{
-		&govv1types.Proposal{Id: 5},
-		&govv1types.Proposal{Id: 6},
-	}
-
-	sdkRes := govv1types.QueryProposalsResponse{
-		Proposals: sdkProposals,
-	}
-
-	expParsedProposals := make([]gov.Proposal, 0, len(sdkProposals))
-	for _, proposal := range sdkProposals {
-		expParsedProposals = append(expParsedProposals, gov.Proposal{
-			ProposalID: strconv.FormatUint(proposal.Id, 10),
-		})
-	}
-
-	bz, err := cdc.MarshalJSON(&sdkRes)
-	require.NoError(t, err, "unexpected error marshaling proposals")
-
-	var res gov.ProposalIDsFromProposalsQueryResponse
-	err = json.Unmarshal(bz, &res)
-	require.NoError(t, err, "unexpected error parsing proposal IDs")
-	require.Equal(t, expParsedProposals, res.Proposals, "expected different parsed proposals")
 }
