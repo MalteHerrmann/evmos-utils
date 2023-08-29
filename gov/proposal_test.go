@@ -1,10 +1,14 @@
 package gov_test
 
 import (
+	"encoding/json"
+	"strconv"
 	"testing"
 
 	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
-	abcitypes "github.com/cometbft/cometbft/abci/types"
+	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,16 +18,16 @@ func TestGetProposalID(t *testing.T) {
 
 	testcases := []struct {
 		name        string
-		events      []abcitypes.Event
+		events      []sdk.StringEvent
 		expID       int
 		expError    bool
 		errContains string
 	}{
 		{
 			name: "pass",
-			events: []abcitypes.Event{{
+			events: []sdk.StringEvent{{
 				Type: "submit_proposal",
-				Attributes: []abcitypes.EventAttribute{
+				Attributes: []sdk.Attribute{
 					{Key: "proposal_id", Value: "5"},
 					{Key: "proposal_messages", Value: ",/cosmos.gov.v1.MsgExecLegacyContent"},
 				},
@@ -32,10 +36,10 @@ func TestGetProposalID(t *testing.T) {
 		},
 		{
 			name: "pass - multiple events",
-			events: []abcitypes.Event{
+			events: []sdk.StringEvent{
 				{
 					Type: "message",
-					Attributes: []abcitypes.EventAttribute{
+					Attributes: []sdk.Attribute{
 						{Key: "action", Value: "/cosmos.gov.v1beta1.MsgSubmitProposal"},
 						{Key: "sender", Value: "evmos1vv6hqcxp0w5we5rzdvf4ddhsas5gx0dep8vmv2"},
 						{Key: "module", Value: "gov"},
@@ -43,7 +47,7 @@ func TestGetProposalID(t *testing.T) {
 				},
 				{
 					Type: "submit_proposal",
-					Attributes: []abcitypes.EventAttribute{
+					Attributes: []sdk.Attribute{
 						{Key: "proposal_id", Value: "5"},
 						{Key: "proposal_messages", Value: ",/cosmos.gov.v1.MsgExecLegacyContent"},
 					},
@@ -53,9 +57,9 @@ func TestGetProposalID(t *testing.T) {
 		},
 		{
 			name: "fail - no submit proposal event",
-			events: []abcitypes.Event{{
+			events: []sdk.StringEvent{{
 				Type: "other type",
-				Attributes: []abcitypes.EventAttribute{
+				Attributes: []sdk.Attribute{
 					{Key: "proposal_id", Value: "4"},
 					{Key: "proposal_messages", Value: ",/cosmos.gov.v1.MsgExecLegacyContent"},
 				},
@@ -65,9 +69,9 @@ func TestGetProposalID(t *testing.T) {
 		},
 		{
 			name: "fail - invalid proposal ID",
-			events: []abcitypes.Event{{
+			events: []sdk.StringEvent{{
 				Type: "submit_proposal",
-				Attributes: []abcitypes.EventAttribute{
+				Attributes: []sdk.Attribute{
 					{Key: "proposal_id", Value: "invalid"},
 				},
 			}},
@@ -90,4 +94,37 @@ func TestGetProposalID(t *testing.T) {
 			}
 		})
 	}
+}
+
+// This function tests if the custom type ProposalIDsFromProposalsQueryResponse
+// is compatible with the output of the proposals query.
+//
+//nolint:paralleltest // only one test included
+func TestProposalIDsFromProposalsQueryResponse(t *testing.T) {
+	cdc, ok := utils.GetCodec()
+	require.True(t, ok, "failed to get codec")
+
+	sdkProposals := govv1types.Proposals{
+		&govv1types.Proposal{Id: 5},
+		&govv1types.Proposal{Id: 6},
+	}
+
+	sdkRes := govv1types.QueryProposalsResponse{
+		Proposals: sdkProposals,
+	}
+
+	expParsedProposals := make([]gov.Proposal, 0, len(sdkProposals))
+	for _, proposal := range sdkProposals {
+		expParsedProposals = append(expParsedProposals, gov.Proposal{
+			ProposalID: strconv.FormatUint(proposal.Id, 10),
+		})
+	}
+
+	bz, err := cdc.MarshalJSON(&sdkRes)
+	require.NoError(t, err, "unexpected error marshaling proposals")
+
+	var res gov.ProposalIDsFromProposalsQueryResponse
+	err = json.Unmarshal(bz, &res)
+	require.NoError(t, err, "unexpected error parsing proposal IDs")
+	require.Equal(t, expParsedProposals, res.Proposals, "expected different parsed proposals")
 }

@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	abcitypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	evmosutils "github.com/evmos/evmos/v14/utils"
@@ -100,7 +99,7 @@ func GetCurrentHeight(bin *Binary) (int, error) {
 // It tries to get the transaction hash from the output
 // and then waits for the transaction to be included in a block.
 // It then returns the transaction events.
-func GetTxEvents(bin *Binary, out string) ([]abcitypes.Event, error) {
+func GetTxEvents(bin *Binary, out string) ([]sdk.StringEvent, error) {
 	txHash, err := GetTxHashFromTxResponse(bin.Cdc, out)
 	if err != nil {
 		return nil, err
@@ -138,7 +137,7 @@ func GetTxEvents(bin *Binary, out string) ([]abcitypes.Event, error) {
 
 // GetEventsFromTxResponse unpacks the transaction response into the corresponding
 // SDK type and returns the events.
-func GetEventsFromTxResponse(cdc *codec.ProtoCodec, out string) ([]abcitypes.Event, error) {
+func GetEventsFromTxResponse(cdc *codec.ProtoCodec, out string) ([]sdk.StringEvent, error) {
 	var txRes sdk.TxResponse
 
 	err := cdc.UnmarshalJSON([]byte(out), &txRes)
@@ -146,7 +145,20 @@ func GetEventsFromTxResponse(cdc *codec.ProtoCodec, out string) ([]abcitypes.Eve
 		return nil, fmt.Errorf("error unmarshalling transaction response: %w\n\nresponse: %s", err, out)
 	}
 
-	return txRes.Events, nil
+	logs := txRes.Logs
+	if len(logs) == 0 {
+		return nil, fmt.Errorf("no logs found in transaction response: %s", out)
+	}
+
+	var events []sdk.StringEvent
+
+	for _, log := range logs {
+		for _, event := range log.Events {
+			events = append(events, event)
+		}
+	}
+
+	return events, nil
 }
 
 // GetTxHashFromTxResponse parses the transaction hash from the given response.

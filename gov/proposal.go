@@ -1,14 +1,14 @@
 package gov
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
-	abcitypes "github.com/cometbft/cometbft/abci/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 )
 
@@ -27,7 +27,7 @@ func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []stri
 
 // GetProposalIDFromSubmitEvents looks for the proposal submission event in the given transaction events
 // and returns the proposal id, if found.
-func GetProposalIDFromSubmitEvents(events []abcitypes.Event) (int, error) {
+func GetProposalIDFromSubmitEvents(events []sdk.StringEvent) (int, error) {
 	for _, event := range events {
 		if event.Type != "submit_proposal" {
 			continue
@@ -48,6 +48,24 @@ func GetProposalIDFromSubmitEvents(events []abcitypes.Event) (int, error) {
 	return 0, fmt.Errorf("proposal submission event not found")
 }
 
+// ProposalIDsFromProposalsQueryResponse is a type to unpack the output of the proposals query.
+//
+// NOTE: It's necessary to use a custom type, because the output of the proposals query
+// changes between the SDK versions. This helper type allows to be backwards compatible.
+type ProposalIDsFromProposalsQueryResponse struct {
+	Proposals []Proposal `json:"proposals"`
+}
+
+// Proposal is a type to unpack the output of the proposals query representing an individual proposal.
+//
+// NOTE: It's necessary to define ProposalID as a string value, because the output has to be unmarshaled
+// using standard JSON encoding, which can't unpack the contained uint64 values.
+// Using the application codec is not possible, because it is dependent on the Evmos / SDK versions and
+// this tool should work for as many versions as possible.
+type Proposal struct {
+	ProposalID string `json:"id,omitempty"`
+}
+
 // QueryLatestProposalID queries the latest proposal ID.
 func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
@@ -62,9 +80,9 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 		return 0, errors.Wrap(err, "error querying proposals")
 	}
 
-	var res govtypes.QueryProposalsResponse
+	var res ProposalIDsFromProposalsQueryResponse
 
-	err = bin.Cdc.UnmarshalJSON([]byte(out), &res)
+	err = json.Unmarshal([]byte(out), &res)
 	if err != nil {
 		return 0, errors.Wrap(err, "error unmarshalling proposals")
 	}
@@ -73,7 +91,12 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 		return 0, errors.New("no proposals found")
 	}
 
-	return int(res.Proposals[len(res.Proposals)-1].ProposalId), nil
+	latestProposalID, err := strconv.Atoi(res.Proposals[len(res.Proposals)-1].ProposalID)
+	if err != nil {
+		return 0, errors.Wrap(err, "error converting proposal ID to integer")
+	}
+
+	return latestProposalID, nil
 }
 
 // SubmitAllVotesForProposal submits a vote for the given proposal ID using all testing accounts.
@@ -97,6 +120,10 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 		if err != nil {
 			if strings.Contains(out, fmt.Sprintf("%d: unknown proposal", proposalID)) {
 				return fmt.Errorf("no proposal with ID %d found", proposalID)
+			}
+
+			if strings.Contains(out, fmt.Sprintf("%d: inactive proposal", proposalID)) {
+				return fmt.Errorf("proposal with ID %d is inactive", proposalID)
 			}
 
 			log.Printf("  - could NOT vote using key: %s\n", acc.Name)
@@ -131,6 +158,10 @@ func SubmitUpgradeProposal(bin *utils.Binary, targetVersion string, upgradeHeigh
 	events, err := utils.GetTxEvents(bin, out)
 	if err != nil {
 		return 0, fmt.Errorf("error getting tx events: %w", err)
+	}
+
+	if len(events) == 0 {
+		return 0, fmt.Errorf("no events found in transaction to submit proposal")
 	}
 
 	return GetProposalIDFromSubmitEvents(events)
