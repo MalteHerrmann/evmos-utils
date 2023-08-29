@@ -8,6 +8,7 @@ import (
 
 	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	"github.com/pkg/errors"
 )
 
 // The amount of blocks in the future that the upgrade will be scheduled.
@@ -28,47 +29,61 @@ func main() {
 		log.Fatalf("Error creating binary: %v", err)
 	}
 
+	//nolint:nestif // nesting complexity is fine here, will be reworked with Cobra commands anyway
 	if os.Args[1] == "vote" {
-		var (
-			err        error
-			proposalID int
-		)
-
-		switch len(os.Args) {
-		case 2:
-			proposalID, err = gov.QueryLatestProposalID(bin)
-			if err != nil {
-				log.Fatalf("Error querying latest proposal ID: %v", err)
-			}
-		case 3:
-			proposalID, err = strconv.Atoi(os.Args[2])
-			if err != nil {
-				log.Printf("Invalid proposal ID: %s. Please provide an integer.\n", os.Args[2])
-				os.Exit(2)
-			}
-		default:
-			log.Println("Please provide the proposal ID.")
-			os.Exit(2)
+		proposalID, err := getProposalIDForVoting(bin, os.Args)
+		if err != nil {
+			log.Fatalf("Error getting proposal ID: %v", err)
 		}
 
-		gov.SubmitAllVotesForProposal(bin, proposalID)
+		err = gov.SubmitAllVotesForProposal(bin, proposalID)
+		if err != nil {
+			log.Fatalf("Error submitting votes for proposal %d: %v", proposalID, err)
+		}
 	} else {
 		targetVersion := os.Args[1]
 		if matched, _ := regexp.MatchString(`v\d+\.\d+\.\d(-rc\d+)?`, targetVersion); !matched {
-			log.Println("Invalid target version. Please use the format vX.Y.Z(-rc*).")
-			os.Exit(2)
+			log.Fatalf("Invalid target version: %s. Please use the format vX.Y.Z(-rc*).\n", targetVersion)
 		}
 
-		upgradeLocalNode(bin, targetVersion)
+		err := upgradeLocalNode(bin, targetVersion)
+		if err != nil {
+			log.Fatalf("Error upgrading local node: %v", err)
+		}
 	}
+}
+
+// getProposalIDForVoting gets the proposal ID from the command line arguments.
+func getProposalIDForVoting(bin *utils.Binary, args []string) (int, error) {
+	var (
+		err        error
+		proposalID int
+	)
+
+	switch len(args) {
+	case 2:
+		proposalID, err = gov.QueryLatestProposalID(bin)
+		if err != nil {
+			return 0, errors.Wrap(err, "Error querying latest proposal ID")
+		}
+	case 3:
+		proposalID, err = strconv.Atoi(args[2])
+		if err != nil {
+			return 0, errors.Wrapf(err, "Error converting proposal ID %s to integer", args[2])
+		}
+	default:
+		return 0, errors.New("Invalid number of arguments")
+	}
+
+	return proposalID, nil
 }
 
 // upgradeLocalNode prepares upgrading the local node to the target version
 // by submitting the upgrade proposal and voting on it using all testing accounts.
-func upgradeLocalNode(bin *utils.Binary, targetVersion string) {
+func upgradeLocalNode(bin *utils.Binary, targetVersion string) error {
 	currentHeight, err := utils.GetCurrentHeight(bin)
 	if err != nil {
-		log.Fatalf("Error getting current height: %v", err)
+		return errors.Wrap(err, "Error getting current height")
 	}
 
 	upgradeHeight := currentHeight + deltaHeight
@@ -77,10 +92,15 @@ func upgradeLocalNode(bin *utils.Binary, targetVersion string) {
 
 	proposalID, err := gov.SubmitUpgradeProposal(bin, targetVersion, upgradeHeight)
 	if err != nil {
-		log.Fatalf("Error executing upgrade proposal: %v", err)
+		return errors.Wrap(err, "Error executing upgrade proposal")
 	}
 
 	log.Printf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
 
-	gov.SubmitAllVotesForProposal(bin, proposalID)
+	err = gov.SubmitAllVotesForProposal(bin, proposalID)
+	if err != nil {
+		return errors.Wrapf(err, "Error submitting votes for proposal %d", proposalID)
+	}
+
+	return nil
 }

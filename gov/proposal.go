@@ -52,8 +52,13 @@ func GetProposalIDFromSubmitEvents(events []abcitypes.Event) (int, error) {
 func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
 		Subcommand: []string{"q", "gov", "proposals", "--output=json"},
+		Quiet:      true,
 	})
 	if err != nil {
+		if strings.Contains(out, "no proposals found") {
+			return 0, errors.New("no proposals found")
+		}
+
 		return 0, errors.Wrap(err, "error querying proposals")
 	}
 
@@ -72,14 +77,18 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 }
 
 // SubmitAllVotesForProposal submits a vote for the given proposal ID using all testing accounts.
-func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) {
+func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 	accsWithDelegations, err := utils.FilterAccountsWithDelegations(bin)
 	if err != nil {
-		log.Fatalf("Error filtering accounts: %v", err)
+		return errors.Wrap(err, "Error filtering accounts")
+	}
+
+	if len(accsWithDelegations) == 0 {
+		return errors.New("No accounts with delegations found")
 	}
 
 	utils.Wait(1)
-	log.Println("Voting for upgrade...")
+	log.Printf("Voting for proposal %d...\n", proposalID)
 
 	for _, acc := range accsWithDelegations {
 		if err = VoteForProposal(bin, proposalID, acc.Name); err != nil {
@@ -88,6 +97,8 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) {
 			log.Printf("  - voted using key: %s\n", acc.Name)
 		}
 	}
+
+	return nil
 }
 
 // SubmitUpgradeProposal submits a software upgrade proposal with the given target version and upgrade height.
@@ -126,6 +137,9 @@ func VoteForProposal(bin *utils.Binary, proposalID int, sender string) error {
 		UseDefaults: true,
 		Quiet:       true,
 	})
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("failed to vote for proposal %d", proposalID))
+	}
 
-	return errors.Wrap(err, fmt.Sprintf("failed to vote for proposal %d", proposalID))
+	return nil
 }
