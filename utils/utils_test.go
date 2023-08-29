@@ -1,10 +1,10 @@
 package utils_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"testing"
 
 	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
