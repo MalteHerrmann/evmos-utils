@@ -11,8 +11,15 @@ started by calling the `local_node.sh` script from the Evmos main repository.
 
 ## Installation
 
+In order to install the tool, clone the source and install locally.
+Note, that using `go install github.com/MalteHerrmann/upgrade-local-node-go@latest`
+does not work because of the replace directives in `go.mod`,
+which are necessary for the Evmos dependencies.
+
 ```bash
-go install github.com/MalteHerrmann/upgrade-local-node-go@latest
+git clone https://github.com/MalteHerrmann/upgrade-local-node-go.git
+cd upgrade-local-node-go
+make install
 ```
 
 ## Features
