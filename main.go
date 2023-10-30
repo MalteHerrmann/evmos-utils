@@ -11,9 +11,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// The amount of blocks in the future that the upgrade will be scheduled.
-const deltaHeight = 15
-
 func main() {
 	if len(os.Args) < 2 {
 		log.Printf(
@@ -91,7 +88,7 @@ func upgradeLocalNode(bin *utils.Binary, targetVersion string) error {
 		return errors.Wrap(err, "Error getting current height")
 	}
 
-	upgradeHeight := currentHeight + deltaHeight
+	upgradeHeight := currentHeight + utils.DeltaHeight
 
 	log.Println("Submitting upgrade proposal...")
 
