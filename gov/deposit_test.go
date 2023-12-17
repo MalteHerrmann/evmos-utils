@@ -19,8 +19,7 @@ func TestParseMinDepositFromResponse(t *testing.T) {
 		errContains   string
 	}{
 		{
-			name: "pass",
-			//nolint:lll // line length is okay here
+			name:          "pass",
 			out:           `{"min_deposit":[{"denom":"aevmos","amount":"10000000"}],"max_deposit_period":"30000000000"}`,
 			expMinDeposit: sdk.Coins{sdk.NewInt64Coin("aevmos", 10000000)},
 		},

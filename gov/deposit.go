@@ -51,12 +51,14 @@ func ParseMinDepositFromResponse(out string) (sdk.Coins, error) {
 	// FIXME: This is a workaround for the missing unit in the max_deposit_period parameter. Should be done with gRPC.
 	depositPatternRaw := `min_deposit":\[{"denom":"(\w+)","amount":"(\d+)`
 	depositPattern := regexp.MustCompile(depositPatternRaw)
+
 	minDepositMatch := depositPattern.FindStringSubmatch(out)
 	if len(minDepositMatch) == 0 {
 		return sdk.Coins{}, fmt.Errorf("failed to find min deposit in params output: %q", out)
 	}
 
 	minDepositDenom := minDepositMatch[1]
+
 	minDepositAmount, err := strconv.Atoi(minDepositMatch[2])
 	if err != nil {
 		return sdk.Coins{}, fmt.Errorf("failed to find min deposit in params output: %q", out)
