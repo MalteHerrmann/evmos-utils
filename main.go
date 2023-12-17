@@ -19,7 +19,8 @@ func main() {
 		log.Printf(
 			"Possible usages:\n" +
 				"  upgrade-local-node-go <target_version>\n" +
-				"  upgrade-local-node-go vote [proposal-id]\n",
+				"  upgrade-local-node-go vote [proposal-id]\n" +
+				"  upgrade-local-node-go deposit [proposal-id]\n",
 		)
 		os.Exit(1)
 	}
@@ -34,9 +35,10 @@ func main() {
 		log.Fatalf("Error getting accounts: %v", err)
 	}
 
-	//nolint:nestif // nesting complexity is fine here, will be reworked with Cobra commands anyway
-	if os.Args[1] == "vote" {
-		proposalID, err := getProposalIDForVoting(bin, os.Args)
+	// TODO: use with Cobra CLI
+	switch os.Args[1] {
+	case "vote":
+		proposalID, err := getProposalIDFromInput(bin, os.Args)
 		if err != nil {
 			log.Fatalf("Error getting proposal ID: %v", err)
 		}
@@ -45,7 +47,19 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error submitting votes for proposal %d: %v", proposalID, err)
 		}
-	} else {
+
+	case "deposit":
+		proposalID, err := getProposalIDFromInput(bin, os.Args)
+		if err != nil {
+			log.Fatalf("Error getting proposal ID: %v", err)
+		}
+
+		// TODO: replace fixed amount with min deposit from chain params
+		if _, err = gov.DepositForProposal(bin, proposalID, bin.Accounts[0].Name, 1e9); err != nil {
+			log.Fatalf("Error depositing for proposal %d: %v", proposalID, err)
+		}
+
+	default:
 		targetVersion := os.Args[1]
 		if matched, _ := regexp.MatchString(`v\d+\.\d+\.\d(-rc\d+)?`, targetVersion); !matched {
 			log.Fatalf("Invalid target version: %s. Please use the format vX.Y.Z(-rc*).\n", targetVersion)
@@ -58,8 +72,8 @@ func main() {
 	}
 }
 
-// getProposalIDForVoting gets the proposal ID from the command line arguments.
-func getProposalIDForVoting(bin *utils.Binary, args []string) (int, error) {
+// getProposalIDFromInput gets the proposal ID from the command line arguments.
+func getProposalIDFromInput(bin *utils.Binary, args []string) (int, error) {
 	var (
 		err        error
 		proposalID int

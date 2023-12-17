@@ -18,7 +18,7 @@ func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []stri
 		"tx", "gov", "submit-legacy-proposal", "software-upgrade", targetVersion,
 		"--title", fmt.Sprintf("'Upgrade to %s'", targetVersion),
 		"--description", fmt.Sprintf("'Upgrade to %s'", targetVersion),
-		"--upgrade-height", fmt.Sprintf("%d", upgradeHeight),
+		"--upgrade-height", strconv.Itoa(upgradeHeight),
 		"--deposit", "100000000000000000000aevmos",
 		"--output", "json",
 		"--no-validate",
@@ -149,13 +149,32 @@ func SubmitUpgradeProposal(bin *utils.Binary, targetVersion string, upgradeHeigh
 // VoteForProposal votes for the proposal with the given ID using the given account.
 func VoteForProposal(bin *utils.Binary, proposalID int, sender string) (string, error) {
 	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
-		Subcommand:  []string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"},
+		Subcommand:  []string{"tx", "gov", "vote", strconv.Itoa(proposalID), "yes"},
 		From:        sender,
 		UseDefaults: true,
 		Quiet:       true,
 	})
 	if err != nil {
 		return out, errors.Wrap(err, fmt.Sprintf("failed to vote for proposal %d", proposalID))
+	}
+
+	return out, nil
+}
+
+// DepositForProposal deposits the given amount of Evmos for the proposal with the given proposalID
+// from the given account.
+func DepositForProposal(bin *utils.Binary, proposalID int, sender string, amount int) (string, error) {
+	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
+		Subcommand: []string{
+			"tx", "gov", "deposit", strconv.Itoa(proposalID), strconv.Itoa(amount) + "aevmos",
+		},
+		From:        sender,
+		UseDefaults: true,
+		Quiet:       true,
+	})
+
+	if err != nil {
+		return out, errors.Wrap(err, fmt.Sprintf("failed to deposit for proposal %d", proposalID))
 	}
 
 	return out, nil
