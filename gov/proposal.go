@@ -2,7 +2,6 @@ package gov
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -18,7 +17,7 @@ func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []stri
 		"tx", "gov", "submit-legacy-proposal", "software-upgrade", targetVersion,
 		"--title", fmt.Sprintf("'Upgrade to %s'", targetVersion),
 		"--description", fmt.Sprintf("'Upgrade to %s'", targetVersion),
-		"--upgrade-height", fmt.Sprintf("%d", upgradeHeight),
+		"--upgrade-height", strconv.Itoa(upgradeHeight),
 		"--deposit", "100000000000000000000aevmos",
 		"--output", "json",
 		"--no-validate",
@@ -78,42 +77,6 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 	return int(res.Proposals[len(res.Proposals)-1].Id), nil
 }
 
-// SubmitAllVotesForProposal submits a vote for the given proposal ID using all testing accounts.
-func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
-	accsWithDelegations, err := utils.FilterAccountsWithDelegations(bin)
-	if err != nil {
-		return errors.Wrap(err, "Error filtering accounts")
-	}
-
-	if len(accsWithDelegations) == 0 {
-		return errors.New("No accounts with delegations found")
-	}
-
-	utils.Wait(1)
-	log.Printf("Voting for proposal %d...\n", proposalID)
-
-	var out string
-
-	for _, acc := range accsWithDelegations {
-		out, err = VoteForProposal(bin, proposalID, acc.Name)
-		if err != nil {
-			if strings.Contains(out, fmt.Sprintf("%d: unknown proposal", proposalID)) {
-				return fmt.Errorf("no proposal with ID %d found", proposalID)
-			}
-
-			if strings.Contains(out, fmt.Sprintf("%d: inactive proposal", proposalID)) {
-				return fmt.Errorf("proposal with ID %d is inactive", proposalID)
-			}
-
-			log.Printf("  - could NOT vote using key: %s\n", acc.Name)
-		} else {
-			log.Printf("  - voted using key: %s\n", acc.Name)
-		}
-	}
-
-	return nil
-}
-
 // SubmitUpgradeProposal submits a software upgrade proposal with the given target version and upgrade height.
 func SubmitUpgradeProposal(bin *utils.Binary, targetVersion string, upgradeHeight int) (int, error) {
 	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight)
@@ -144,19 +107,4 @@ func SubmitUpgradeProposal(bin *utils.Binary, targetVersion string, upgradeHeigh
 	}
 
 	return GetProposalIDFromSubmitEvents(events)
-}
-
-// VoteForProposal votes for the proposal with the given ID using the given account.
-func VoteForProposal(bin *utils.Binary, proposalID int, sender string) (string, error) {
-	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
-		Subcommand:  []string{"tx", "gov", "vote", fmt.Sprintf("%d", proposalID), "yes"},
-		From:        sender,
-		UseDefaults: true,
-		Quiet:       true,
-	})
-	if err != nil {
-		return out, errors.Wrap(err, fmt.Sprintf("failed to vote for proposal %d", proposalID))
-	}
-
-	return out, nil
 }

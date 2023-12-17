@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Features
+
+- [#26](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/26) Enable just depositing with the binary
+
 ## [v0.3.0](https://github.com/MalteHerrmann/upgrade-local-node-go/releases/tag/v0.3.0) - 2023-08-30
 
 ### Features
