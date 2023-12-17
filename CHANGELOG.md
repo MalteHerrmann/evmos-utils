@@ -41,6 +41,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - [#26](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/26) Enable just depositing with the binary
 
+### Improvements
+
+- [#27](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/27) Add MIT license
+
 ## [v0.3.0](https://github.com/MalteHerrmann/upgrade-local-node-go/releases/tag/v0.3.0) - 2023-08-30
 
 ### Features
