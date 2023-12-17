@@ -47,13 +47,17 @@ func main() {
 		}
 
 	case "deposit":
+		deposit, err := gov.GetMinDeposit(bin)
+		if err != nil {
+			log.Fatalf("error getting minimum deposit: %v", err)
+		}
+
 		proposalID, err := getProposalIDFromInput(bin, os.Args)
 		if err != nil {
 			log.Fatalf("error getting proposal ID: %v", err)
 		}
 
-		// TODO: replace fixed amount with min deposit from chain params
-		if _, err = gov.DepositForProposal(bin, proposalID, bin.Accounts[0].Name, 1e9); err != nil {
+		if _, err = gov.DepositForProposal(bin, proposalID, bin.Accounts[0].Name, deposit.String()); err != nil {
 			log.Fatalf("error depositing for proposal %d: %v", proposalID, err)
 		}
 
