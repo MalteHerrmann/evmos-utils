@@ -2,6 +2,7 @@ package gov
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 
@@ -10,10 +11,27 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Deposit deposits the minimum needed deposit for a given governance proposal.
+func Deposit(bin *utils.Binary, args []string) error {
+	deposit, err := GetMinDeposit(bin)
+	if err != nil {
+		log.Fatalf("error getting minimum deposit: %v", err)
+	}
+
+	proposalID, err := GetProposalIDFromInput(bin, args)
+	if err != nil {
+		log.Fatalf("error getting proposal ID: %v", err)
+	}
+
+	return DepositForProposal(
+		bin, proposalID, bin.Accounts[0].Name, deposit.String(),
+	)
+}
+
 // DepositForProposal deposits the given amount for the proposal with the given proposalID
 // from the given account.
-func DepositForProposal(bin *utils.Binary, proposalID int, sender, deposit string) (string, error) {
-	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
+func DepositForProposal(bin *utils.Binary, proposalID int, sender, deposit string) error {
+	_, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
 		Subcommand: []string{
 			"tx", "gov", "deposit", strconv.Itoa(proposalID), deposit,
 		},
@@ -22,10 +40,10 @@ func DepositForProposal(bin *utils.Binary, proposalID int, sender, deposit strin
 		Quiet:       true,
 	})
 	if err != nil {
-		return out, errors.Wrap(err, fmt.Sprintf("failed to deposit for proposal %d", proposalID))
+		return errors.Wrap(err, fmt.Sprintf("failed to deposit for proposal %d", proposalID))
 	}
 
-	return out, nil
+	return nil
 }
 
 // GetMinDeposit returns the minimum deposit necessary for a proposal from the governance parameters of
@@ -48,7 +66,6 @@ func GetMinDeposit(bin *utils.Binary) (sdk.Coins, error) {
 // FIXME: It wasn't possible to unmarshal the JSON output of the query because of a missing unit in the max_deposit_period
 // parameter. This should rather be done using GRPC.
 func ParseMinDepositFromResponse(out string) (sdk.Coins, error) {
-	// FIXME: This is a workaround for the missing unit in the max_deposit_period parameter. Should be done with gRPC.
 	depositPatternRaw := `min_deposit":\[{"denom":"(\w+)","amount":"(\d+)`
 	depositPattern := regexp.MustCompile(depositPatternRaw)
 
