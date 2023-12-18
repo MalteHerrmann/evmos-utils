@@ -4,8 +4,8 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
-	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	"github.com/MalteHerrmann/evmos-utils/gov"
+	"github.com/MalteHerrmann/evmos-utils/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

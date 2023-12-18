@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	"github.com/MalteHerrmann/evmos-utils/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/pkg/errors"

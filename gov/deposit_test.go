@@ -3,7 +3,7 @@ package gov_test
 import (
 	"testing"
 
-	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
+	"github.com/MalteHerrmann/evmos-utils/gov"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )

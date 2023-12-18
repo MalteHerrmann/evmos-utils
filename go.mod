@@ -1,4 +1,4 @@
-module github.com/MalteHerrmann/upgrade-local-node-go
+module github.com/MalteHerrmann/evmos-utils
 
 go 1.21
 

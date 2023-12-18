@@ -39,34 +39,34 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Features
 
-- [#26](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/26) Enable just depositing with the binary
+- [#26](https://github.com/MalteHerrmann/evmos-utils/pull/26) Enable just depositing with the binary
 
 ### Improvements
 
-- [#27](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/27) Add MIT license
-- [#28](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/28) Use [Cobra CLI](https://github.com/spf13/cobra) package
+- [#27](https://github.com/MalteHerrmann/evmos-utils/pull/27) Add MIT license
+- [#28](https://github.com/MalteHerrmann/evmos-utils/pull/28) Use [Cobra CLI](https://github.com/spf13/cobra) package
 
-## [v0.3.0](https://github.com/MalteHerrmann/upgrade-local-node-go/releases/tag/v0.3.0) - 2023-08-30
+## [v0.3.0](https://github.com/MalteHerrmann/evmos-utils/releases/tag/v0.3.0) - 2023-08-30
 
 ### Features
 
-- [#14](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/14) Enable just voting with the binary
+- [#14](https://github.com/MalteHerrmann/evmos-utils/pull/14) Enable just voting with the binary
 
 ### Improvements
 
-- [#7](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/7) Add linters plus corresponding refactors
-- [#6](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/6) Restructuring and refactoring
-- [#4](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/4) Add GH actions and Makefile for testing
-- [#3](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/3) Use broadcast mode `sync` instead of `block`
-- [#2](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/2) Only vote if account has delegations
+- [#7](https://github.com/MalteHerrmann/evmos-utils/pull/7) Add linters plus corresponding refactors
+- [#6](https://github.com/MalteHerrmann/evmos-utils/pull/6) Restructuring and refactoring
+- [#4](https://github.com/MalteHerrmann/evmos-utils/pull/4) Add GH actions and Makefile for testing
+- [#3](https://github.com/MalteHerrmann/evmos-utils/pull/3) Use broadcast mode `sync` instead of `block`
+- [#2](https://github.com/MalteHerrmann/evmos-utils/pull/2) Only vote if account has delegations
 
-## [v0.2.0](https://github.com/MalteHerrmann/upgrade-local-node-go/releases/tag/v0.2.0) - 2023-08-09
+## [v0.2.0](https://github.com/MalteHerrmann/evmos-utils/releases/tag/v0.2.0) - 2023-08-09
 
 ### Improvements
 
-- [#1](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/1) Adaptively gets keys and current proposal ID from the local node
+- [#1](https://github.com/MalteHerrmann/evmos-utils/pull/1) Adaptively gets keys and current proposal ID from the local node
 
-## [v0.1.0](https://github.com/MalteHerrmann/upgrade-local-node-go/releases/tag/v0.1.0) - 2023-08-01
+## [v0.1.0](https://github.com/MalteHerrmann/evmos-utils/releases/tag/v0.1.0) - 2023-08-01
 
 ### Features
 

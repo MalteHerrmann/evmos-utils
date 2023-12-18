@@ -3,8 +3,8 @@ package cmd
 import (
 	"log"
 
-	"github.com/MalteHerrmann/upgrade-local-node-go/gov"
-	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	"github.com/MalteHerrmann/evmos-utils/gov"
+	"github.com/MalteHerrmann/evmos-utils/utils"
 	"github.com/spf13/cobra"
 )
 

@@ -12,25 +12,26 @@ started by calling the `local_node.sh` script from the Evmos main repository.
 ## Installation
 
 In order to install the tool, clone the source and install locally.
-Note, that using `go install github.com/MalteHerrmann/upgrade-local-node-go@latest`
+
+Note, that using `go install github.com/MalteHerrmann/evmos-utils@latest`
 does not work because of the replace directives in `go.mod`,
 which are necessary for the Evmos dependencies.
 
 ```bash
-git clone https://github.com/MalteHerrmann/upgrade-local-node-go.git
-cd upgrade-local-node-go
+git clone https://github.com/MalteHerrmann/evmos-utils.git
+cd evmos-utils
 make install
 ```
 
 ## Features
 
-### Upgrade Local Node
+### Upgrade a Local Node
 
-The tool creates and submits a software upgrade proposal to a running local Evmos node,
+The tool creates and submits a software upgrade proposal to a locally running Evmos node,
 and votes on the proposal. To do so, run:
 
 ```bash
-upgrade-local-node-go [TARGET_VERSION]
+evmos-utils [TARGET_VERSION]
 ```
 
 The target version must be specified in the format `vX.Y.Z(-rc*)`, e.g. `v13.0.0-rc2`.
@@ -42,5 +43,16 @@ to validators. This can either target the most recent proposal, or a specific on
 passing an ID to the command.
 
 ```bash
-upgrade-local-node-go vote [PROPOSAL_ID]
+evmos-utils vote [PROPOSAL_ID]
 ```
+
+### Deposit for Proposal
+
+The tool can make a deposit for a proposal.
+It returns the minimum deposit necessary from the governance parameters of the running local node
+and places the deposit on behalf of the first account in the test keyring.
+
+```bash
+evmos-utils deposit [PROPOSAL_ID]
+```
+
