@@ -3,7 +3,7 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	"github.com/MalteHerrmann/evmos-utils/utils"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/MalteHerrmann/upgrade-local-node-go/utils"
+	"github.com/MalteHerrmann/evmos-utils/utils"
 	"github.com/pkg/errors"
 )
 

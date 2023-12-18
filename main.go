@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/MalteHerrmann/upgrade-local-node-go/cmd"
+	"github.com/MalteHerrmann/evmos-utils/cmd"
 )
 
 func main() {
