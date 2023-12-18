@@ -17,17 +17,20 @@ If no proposal ID is given by the user, the latest proposal is queried and depos
 		bin, err := utils.NewEvmosTestingBinary()
 		if err != nil {
 			bin.Logger.Error().Msgf("error creating binary: %v", err)
+
 			return
 		}
 
 		if err = bin.GetAccounts(); err != nil {
 			bin.Logger.Error().Msgf("error getting accounts: %v", err)
+
 			return
 		}
 
 		proposalID, err := gov.Deposit(bin, args)
 		if err != nil {
 			bin.Logger.Error().Msgf("error depositing: %v", err)
+
 			return
 		}
 

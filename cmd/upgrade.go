@@ -20,22 +20,26 @@ voting for it using all keys of in the keyring and having it pass.`,
 		bin, err := utils.NewEvmosTestingBinary()
 		if err != nil {
 			bin.Logger.Error().Msgf("error creating binary: %v", err)
+
 			return
 		}
 
 		if err = bin.GetAccounts(); err != nil {
 			bin.Logger.Error().Msgf("error getting accounts: %v", err)
+
 			return
 		}
 
 		targetVersion := args[0]
 		if matched, _ := regexp.MatchString(`v\d+\.\d+\.\d(-rc\d+)?`, targetVersion); !matched {
 			bin.Logger.Error().Msgf("invalid target version: %s; please use the format vX.Y.Z(-rc*).", targetVersion)
+
 			return
 		}
 
 		if err := upgradeLocalNode(bin, targetVersion); err != nil {
 			bin.Logger.Error().Msgf("error upgrading local node: %v", err)
+
 			return
 		}
 
