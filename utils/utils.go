@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -46,7 +45,7 @@ func ExecuteBinaryCmd(bin *Binary, args BinaryCmdArgs) (string, error) {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil && !args.Quiet {
-		log.Println(string(output))
+		bin.Logger.Error().Msg(string(output))
 	}
 
 	return string(output), err

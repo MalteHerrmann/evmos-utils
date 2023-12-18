@@ -46,6 +46,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - [#27](https://github.com/MalteHerrmann/evmos-utils/pull/27) Add MIT license
 - [#28](https://github.com/MalteHerrmann/evmos-utils/pull/28) Use [Cobra CLI](https://github.com/spf13/cobra) package
 - [#29](https://github.com/MalteHerrmann/evmos-utils/pull/29) Adjust repository name from `upgrade-local-node-go` to `evmos-utils`
+- [#30](https://github.com/MalteHerrmann/evmos-utils/pull/30) Use [zerolog](https://github.com/rs/zerolog) for logging
 
 ## [v0.3.0](https://github.com/MalteHerrmann/evmos-utils/releases/tag/v0.3.0) - 2023-08-30
 

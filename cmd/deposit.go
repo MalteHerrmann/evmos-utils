@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/MalteHerrmann/evmos-utils/gov"
 	"github.com/MalteHerrmann/evmos-utils/utils"
 	"github.com/spf13/cobra"
@@ -10,7 +8,7 @@ import (
 
 //nolint:gochecknoglobals // required by cobra
 var depositCmd = &cobra.Command{
-	Use:   "deposit",
+	Use:   "deposit [PROPOSAL_ID]",
 	Short: "Deposit for a governance proposal",
 	Long: `Deposit the minimum needed deposit for a given governance proposal.
 If no proposal ID is given by the user, the latest proposal is queried and deposited for.`,
@@ -18,17 +16,25 @@ If no proposal ID is given by the user, the latest proposal is queried and depos
 	Run: func(cmd *cobra.Command, args []string) {
 		bin, err := utils.NewEvmosTestingBinary()
 		if err != nil {
-			log.Fatalf("error creating binary: %v", err)
+			bin.Logger.Error().Msgf("error creating binary: %v", err)
+
+			return
 		}
 
 		if err = bin.GetAccounts(); err != nil {
-			log.Fatalf("error getting accounts: %v", err)
+			bin.Logger.Error().Msgf("error getting accounts: %v", err)
+
+			return
 		}
 
-		err = gov.Deposit(bin, args)
+		proposalID, err := gov.Deposit(bin, args)
 		if err != nil {
-			log.Fatalf("error depositing: %v", err)
+			bin.Logger.Error().Msgf("error depositing: %v", err)
+
+			return
 		}
+
+		bin.Logger.Info().Msgf("successfully deposited for proposal %d", proposalID)
 	},
 }
 

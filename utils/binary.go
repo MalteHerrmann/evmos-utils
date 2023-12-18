@@ -10,6 +10,8 @@ import (
 	"github.com/evmos/evmos/v14/app"
 	"github.com/evmos/evmos/v14/encoding"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 // Binary is a struct to hold the necessary information to execute commands
@@ -23,10 +25,12 @@ type Binary struct {
 	Appd string
 	// Accounts are the accounts stored in the local keyring.
 	Accounts []Account
+	// Logger is a logger to be used within all commands.
+	Logger zerolog.Logger
 }
 
 // NewBinary returns a new Binary instance.
-func NewBinary(home, appd string) (*Binary, error) {
+func NewBinary(home, appd string, logger zerolog.Logger) (*Binary, error) {
 	// check if home directory exists
 	if _, err := os.Stat(home); os.IsNotExist(err) {
 		return nil, errors.Wrap(err, fmt.Sprintf("home directory does not exist: %s", home))
@@ -44,23 +48,26 @@ func NewBinary(home, appd string) (*Binary, error) {
 	}
 
 	return &Binary{
-		Cdc:  cdc,
-		Home: home,
-		Appd: appd,
+		Cdc:    cdc,
+		Home:   home,
+		Appd:   appd,
+		Logger: logger,
 	}, nil
 }
 
 // NewEvmosTestingBinary returns a new Binary instance with the default home and appd
 // setup for the Evmos local node testing setup.
 func NewEvmosTestingBinary() (*Binary, error) {
+	logger := log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+
 	userHome, err := os.UserHomeDir()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user home dir")
+		return &Binary{Logger: logger}, errors.Wrap(err, "failed to get user home dir")
 	}
 
 	defaultEvmosdHome := path.Join(userHome, ".tmp-evmosd")
 
-	return NewBinary(defaultEvmosdHome, "evmosd")
+	return NewBinary(defaultEvmosdHome, "evmosd", logger)
 }
 
 // GetCodec returns the codec to be used for the client.

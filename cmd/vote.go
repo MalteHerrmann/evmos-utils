@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/MalteHerrmann/evmos-utils/gov"
 	"github.com/MalteHerrmann/evmos-utils/utils"
 	"github.com/spf13/cobra"
@@ -10,7 +8,7 @@ import (
 
 //nolint:gochecknoglobals // required by cobra
 var voteCmd = &cobra.Command{
-	Use:   "vote",
+	Use:   "vote [PROPOSAL_ID]",
 	Short: "Vote for a governance proposal",
 	Long: `Vote for a governance proposal with all keys in the keyring.
 If no proposal ID is passed, the latest proposal on chain is queried and used.`,
@@ -18,16 +16,25 @@ If no proposal ID is passed, the latest proposal on chain is queried and used.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		bin, err := utils.NewEvmosTestingBinary()
 		if err != nil {
-			log.Fatalf("error creating binary: %v", err)
+			bin.Logger.Error().Msgf("error creating binary: %v", err)
+
+			return
 		}
 
 		if err = bin.GetAccounts(); err != nil {
-			log.Fatalf("error getting accounts: %v", err)
+			bin.Logger.Error().Msgf("error getting accounts: %v", err)
+
+			return
 		}
 
-		if err = gov.SubmitAllVotes(bin, args); err != nil {
-			log.Fatal(err)
+		proposalID, err := gov.SubmitAllVotes(bin, args)
+		if err != nil {
+			bin.Logger.Error().Msgf("error submitting votes: %v", err)
+
+			return
 		}
+
+		bin.Logger.Info().Msgf("successfully submitted votes for proposal %d", proposalID)
 	},
 }
 
