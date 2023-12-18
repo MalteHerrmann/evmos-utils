@@ -1,4 +1,4 @@
-# Evmos Dev Utils
+# Evmos Utils
 
 This tool contains several utility functionalities that are useful during
 development of the Evmos blockchain. 
@@ -25,13 +25,16 @@ make install
 
 ## Features
 
+The tool is based on [Cobra CLI](https://github.com/spf13/cobra) so you can use
+`--help` to get a list of all available commands and flags.
+
 ### Upgrade a Local Node
 
 The tool creates and submits a software upgrade proposal to a locally running Evmos node,
 and votes on the proposal. To do so, run:
 
 ```bash
-evmos-utils [TARGET_VERSION]
+evmos-utils upgrade [TARGET_VERSION]
 ```
 
 The target version must be specified in the format `vX.Y.Z(-rc*)`, e.g. `v13.0.0-rc2`.
