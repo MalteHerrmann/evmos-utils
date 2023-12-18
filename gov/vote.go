@@ -10,6 +10,16 @@ import (
 	"github.com/pkg/errors"
 )
 
+// SubmitAllVotes submits a vote for the given proposal ID using all testing accounts.
+func SubmitAllVotes(bin *utils.Binary, args []string) error {
+	proposalID, err := GetProposalIDFromInput(bin, args)
+	if err != nil {
+		return err
+	}
+
+	return SubmitAllVotesForProposal(bin, proposalID)
+}
+
 // SubmitAllVotesForProposal submits a vote for the given proposal ID using all testing accounts.
 func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 	accsWithDelegations, err := utils.FilterAccountsWithDelegations(bin)

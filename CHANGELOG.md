@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - [#27](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/27) Add MIT license
+- [#28](https://github.com/MalteHerrmann/upgrade-local-node-go/pull/28) Use [Cobra CLI](https://github.com/spf13/cobra) package
 
 ## [v0.3.0](https://github.com/MalteHerrmann/upgrade-local-node-go/releases/tag/v0.3.0) - 2023-08-30
 
