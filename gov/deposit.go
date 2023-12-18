@@ -2,7 +2,6 @@ package gov
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 
@@ -12,18 +11,18 @@ import (
 )
 
 // Deposit deposits the minimum needed deposit for a given governance proposal.
-func Deposit(bin *utils.Binary, args []string) error {
+func Deposit(bin *utils.Binary, args []string) (int, error) {
 	deposit, err := GetMinDeposit(bin)
 	if err != nil {
-		log.Fatalf("error getting minimum deposit: %v", err)
+		return 0, errors.Wrap(err, "failed to get minimum deposit")
 	}
 
 	proposalID, err := GetProposalIDFromInput(bin, args)
 	if err != nil {
-		log.Fatalf("error getting proposal ID: %v", err)
+		return 0, errors.Wrap(err, "failed to get proposal ID")
 	}
 
-	return DepositForProposal(
+	return proposalID, DepositForProposal(
 		bin, proposalID, bin.Accounts[0].Name, deposit.String(),
 	)
 }

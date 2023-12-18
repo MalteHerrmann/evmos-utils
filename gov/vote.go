@@ -2,7 +2,6 @@ package gov
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -11,13 +10,13 @@ import (
 )
 
 // SubmitAllVotes submits a vote for the given proposal ID using all testing accounts.
-func SubmitAllVotes(bin *utils.Binary, args []string) error {
+func SubmitAllVotes(bin *utils.Binary, args []string) (int, error) {
 	proposalID, err := GetProposalIDFromInput(bin, args)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return SubmitAllVotesForProposal(bin, proposalID)
+	return proposalID, SubmitAllVotesForProposal(bin, proposalID)
 }
 
 // SubmitAllVotesForProposal submits a vote for the given proposal ID using all testing accounts.
@@ -32,7 +31,7 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 	}
 
 	utils.Wait(1)
-	log.Printf("Voting for proposal %d...\n", proposalID)
+	bin.Logger.Info().Msgf("Voting for proposal %d", proposalID)
 
 	var out string
 
@@ -47,9 +46,9 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 				return fmt.Errorf("proposal with ID %d is inactive", proposalID)
 			}
 
-			log.Printf("  - could NOT vote using key: %s\n", acc.Name)
+			bin.Logger.Error().Msgf("could not vote using key %s: %v", acc.Name, err)
 		} else {
-			log.Printf("  - voted using key: %s\n", acc.Name)
+			bin.Logger.Info().Msgf("voted using key %s", acc.Name)
 		}
 	}
 

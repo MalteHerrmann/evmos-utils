@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"log"
 	"regexp"
 
 	"github.com/MalteHerrmann/evmos-utils/gov"
@@ -12,7 +11,7 @@ import (
 
 //nolint:gochecknoglobals // required by cobra
 var upgradeCmd = &cobra.Command{
-	Use:   "upgrade",
+	Use:   "upgrade TARGET_VERSION",
 	Short: "Prepare an upgrade of a node",
 	Long: `Prepare an upgrade of a node by submitting a governance proposal, 
 voting for it using all keys of in the keyring and having it pass.`,
@@ -20,20 +19,26 @@ voting for it using all keys of in the keyring and having it pass.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		bin, err := utils.NewEvmosTestingBinary()
 		if err != nil {
-			log.Fatalf("error creating binary: %v", err)
+			bin.Logger.Error().Msgf("error creating binary: %v", err)
+			return
 		}
 
 		if err = bin.GetAccounts(); err != nil {
-			log.Fatalf("error getting accounts: %v", err)
+			bin.Logger.Error().Msgf("error getting accounts: %v", err)
+			return
 		}
 
 		targetVersion := args[0]
 		if matched, _ := regexp.MatchString(`v\d+\.\d+\.\d(-rc\d+)?`, targetVersion); !matched {
-			log.Fatalf("invalid target version: %s; please use the format vX.Y.Z(-rc*).\n", targetVersion)
+			bin.Logger.Error().Msgf("invalid target version: %s; please use the format vX.Y.Z(-rc*).", targetVersion)
+			return
 		}
 
 		if err := upgradeLocalNode(bin, targetVersion); err != nil {
-			log.Fatalf("error upgrading local node: %v", err)
+			bin.Logger.Error().Msgf("error upgrading local node: %v", err)
+			return
+		} else {
+			bin.Logger.Info().Msgf("successfully prepared upgrade to %s", targetVersion)
 		}
 	},
 }
@@ -53,14 +58,14 @@ func upgradeLocalNode(bin *utils.Binary, targetVersion string) error {
 
 	upgradeHeight := currentHeight + utils.DeltaHeight
 
-	log.Println("Submitting upgrade proposal...")
+	bin.Logger.Error().Msg("Submitting upgrade proposal...")
 
 	proposalID, err := gov.SubmitUpgradeProposal(bin, targetVersion, upgradeHeight)
 	if err != nil {
 		return errors.Wrap(err, "error executing upgrade proposal")
 	}
 
-	log.Printf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
+	bin.Logger.Info().Msgf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
 
 	if err = gov.SubmitAllVotesForProposal(bin, proposalID); err != nil {
 		return errors.Wrapf(err, "error submitting votes for proposal %d", proposalID)
