@@ -29,9 +29,9 @@ If no proposal ID is given by the user, the latest proposal is queried and depos
 		if err != nil {
 			bin.Logger.Error().Msgf("error depositing: %v", err)
 			return
-		} else {
-			bin.Logger.Info().Msgf("successfully deposited for proposal %d", proposalID)
 		}
+
+		bin.Logger.Info().Msgf("successfully deposited for proposal %d", proposalID)
 	},
 }
 

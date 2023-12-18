@@ -29,9 +29,9 @@ If no proposal ID is passed, the latest proposal on chain is queried and used.`,
 		if err != nil {
 			bin.Logger.Error().Msgf("error submitting votes: %v", err)
 			return
-		} else {
-			bin.Logger.Info().Msgf("successfully submitted votes for proposal %d", proposalID)
 		}
+
+		bin.Logger.Info().Msgf("successfully submitted votes for proposal %d", proposalID)
 	},
 }
 

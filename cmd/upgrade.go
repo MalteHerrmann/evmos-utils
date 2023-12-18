@@ -37,9 +37,9 @@ voting for it using all keys of in the keyring and having it pass.`,
 		if err := upgradeLocalNode(bin, targetVersion); err != nil {
 			bin.Logger.Error().Msgf("error upgrading local node: %v", err)
 			return
-		} else {
-			bin.Logger.Info().Msgf("successfully prepared upgrade to %s", targetVersion)
 		}
+
+		bin.Logger.Info().Msgf("successfully prepared upgrade to %s", targetVersion)
 	},
 }
 
@@ -58,14 +58,14 @@ func upgradeLocalNode(bin *utils.Binary, targetVersion string) error {
 
 	upgradeHeight := currentHeight + utils.DeltaHeight
 
-	bin.Logger.Error().Msg("Submitting upgrade proposal...")
+	bin.Logger.Error().Msg("submitting upgrade proposal...")
 
 	proposalID, err := gov.SubmitUpgradeProposal(bin, targetVersion, upgradeHeight)
 	if err != nil {
 		return errors.Wrap(err, "error executing upgrade proposal")
 	}
 
-	bin.Logger.Info().Msgf("Scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
+	bin.Logger.Info().Msgf("scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
 
 	if err = gov.SubmitAllVotesForProposal(bin, proposalID); err != nil {
 		return errors.Wrapf(err, "error submitting votes for proposal %d", proposalID)

@@ -31,7 +31,7 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 	}
 
 	utils.Wait(1)
-	bin.Logger.Info().Msgf("Voting for proposal %d", proposalID)
+	bin.Logger.Info().Msgf("voting for proposal %d", proposalID)
 
 	var out string
 
