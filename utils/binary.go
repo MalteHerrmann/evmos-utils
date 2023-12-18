@@ -2,8 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"os"
 	"os/exec"
 	"path"
@@ -12,6 +10,8 @@ import (
 	"github.com/evmos/evmos/v14/app"
 	"github.com/evmos/evmos/v14/encoding"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 // Binary is a struct to hold the necessary information to execute commands
