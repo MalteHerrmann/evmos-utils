@@ -34,7 +34,7 @@ The tool creates and submits a software upgrade proposal to a locally running Ev
 and votes on the proposal. To do so, run:
 
 ```bash
-evmos-utils upgrade [TARGET_VERSION]
+evmos-utils upgrade TARGET_VERSION
 ```
 
 The target version must be specified in the format `vX.Y.Z(-rc*)`, e.g. `v13.0.0-rc2`.
@@ -58,4 +58,3 @@ and places the deposit on behalf of the first account in the test keyring.
 ```bash
 evmos-utils deposit [PROPOSAL_ID]
 ```
-
