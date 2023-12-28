@@ -67,7 +67,16 @@ func NewEvmosTestingBinary() (*Binary, error) {
 
 	defaultEvmosdHome := path.Join(userHome, ".tmp-evmosd")
 
-	return NewBinary(defaultEvmosdHome, "evmosd", logger)
+	bin, err := NewBinary(defaultEvmosdHome, "evmosd", logger)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = bin.GetAccounts(); err != nil {
+		return nil, err
+	}
+
+	return bin, nil
 }
 
 // GetCodec returns the codec to be used for the client.
