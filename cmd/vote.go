@@ -21,12 +21,6 @@ If no proposal ID is passed, the latest proposal on chain is queried and used.`,
 			return
 		}
 
-		if err = bin.GetAccounts(); err != nil {
-			bin.Logger.Error().Msgf("error getting accounts: %v", err)
-
-			return
-		}
-
 		proposalID, err := gov.SubmitAllVotes(bin, args)
 		if err != nil {
 			bin.Logger.Error().Msgf("error submitting votes: %v", err)
