@@ -56,7 +56,7 @@ func upgradeLocalNode(bin *utils.Binary, targetVersion string) error {
 
 	upgradeHeight := currentHeight + utils.DeltaHeight
 
-	bin.Logger.Error().Msg("submitting upgrade proposal...")
+	bin.Logger.Info().Msg("submitting upgrade proposal...")
 
 	proposalID, err := gov.SubmitUpgradeProposal(bin, targetVersion, upgradeHeight)
 	if err != nil {
