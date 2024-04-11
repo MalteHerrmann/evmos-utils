@@ -1,7 +1,7 @@
 package utils
 
 import (
-	evmosutils "github.com/evmos/evmos/v14/utils"
+	evmosutils "github.com/evmos/evmos/v17/utils"
 )
 
 const (

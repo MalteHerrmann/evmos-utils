@@ -7,8 +7,8 @@ import (
 	"path"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/encoding"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -33,7 +33,7 @@ type Binary struct {
 func NewBinary(home, appd string, logger zerolog.Logger) (*Binary, error) {
 	// check if home directory exists
 	if _, err := os.Stat(home); os.IsNotExist(err) {
-		return nil, errors.Wrap(err, fmt.Sprintf("home directory does not exist: %s", home))
+		return nil, errors.Wrap(err, "home directory does not exist: "+home)
 	}
 
 	// check if binary is installed

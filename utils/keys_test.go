@@ -32,9 +32,9 @@ func TestParseKeysFromOut(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
 			accounts, err := utils.ParseAccountsFromOut(tc.out)
 			if tc.expError {
 				require.Error(t, err, "expected error parsing accounts")
@@ -46,6 +46,7 @@ func TestParseKeysFromOut(t *testing.T) {
 				for _, account := range accounts {
 					keys = append(keys, account.Name)
 				}
+
 				require.Equal(t, tc.expKeys, keys, "expected different keys")
 			}
 		})

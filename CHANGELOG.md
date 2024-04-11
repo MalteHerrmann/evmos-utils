@@ -40,6 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - [#32](https://github.com/MalteHerrmann/evmos-utils/pull/32) Minor refactor in CLI commands
+- [#35](https://github.com/MalteHerrman/evmos-utils/pull/35) Update to Evmos v17.
 
 ## [v0.4.0](https://github.com/MalteHerrmann/evmos-utils/releases/tag/v0.4.0) - 2023-12-18
 

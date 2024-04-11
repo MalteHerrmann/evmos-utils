@@ -10,7 +10,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmosutils "github.com/evmos/evmos/v14/utils"
+	evmosutils "github.com/evmos/evmos/v17/utils"
 )
 
 // BinaryCmdArgs are the arguments passed to be executed with the Evmos binary.
@@ -110,7 +110,7 @@ func GetTxEvents(bin *Binary, out string) ([]sdk.StringEvent, error) {
 		nAttempts = 10
 	)
 
-	for i := 0; i < nAttempts; i++ {
+	for range nAttempts {
 		txOut, err = ExecuteBinaryCmd(bin, BinaryCmdArgs{
 			Subcommand: []string{"q", "tx", txHash, "--output=json"},
 			Quiet:      true,

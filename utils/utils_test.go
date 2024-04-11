@@ -43,9 +43,9 @@ func TestGetTxHashFromResponse(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
 			hash, err := utils.GetTxHashFromTxResponse(cdc, tc.out)
 			if tc.expError {
 				require.Error(t, err, "expected error getting tx hash")
@@ -92,9 +92,9 @@ func TestGetEventsFromTxResponse(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
 			events, err := utils.GetEventsFromTxResponse(cdc, tc.out)
 			if tc.expError {
 				require.Error(t, err, "expected error getting tx events")

@@ -16,6 +16,13 @@ var rootCmd = &cobra.Command{
 It can be used to test upgrades, deposit or vote for specific or the latest proposals, etc.`,
 }
 
+//nolint:gochecknoinits // required by cobra
+func init() {
+	rootCmd.AddCommand(depositCmd)
+	rootCmd.AddCommand(upgradeCmd)
+	rootCmd.AddCommand(voteCmd)
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {

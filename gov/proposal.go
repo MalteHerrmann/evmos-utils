@@ -44,7 +44,7 @@ func GetProposalIDFromSubmitEvents(events []sdk.StringEvent) (int, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("proposal submission event not found")
+	return 0, errors.New("proposal submission event not found")
 }
 
 // QueryLatestProposalID queries the latest proposal ID.
@@ -103,7 +103,7 @@ func SubmitUpgradeProposal(bin *utils.Binary, targetVersion string, upgradeHeigh
 	}
 
 	if len(events) == 0 {
-		return 0, fmt.Errorf("no events found in transaction to submit proposal")
+		return 0, errors.New("no events found in transaction to submit proposal")
 	}
 
 	return GetProposalIDFromSubmitEvents(events)
