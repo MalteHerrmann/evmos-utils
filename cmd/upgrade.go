@@ -41,11 +41,6 @@ voting for it using all keys of in the keyring and having it pass.`,
 	},
 }
 
-//nolint:gochecknoinits // required by cobra
-func init() {
-	rootCmd.AddCommand(upgradeCmd)
-}
-
 // upgradeLocalNode prepares upgrading the local node to the target version
 // by submitting the upgrade proposal and voting on it using all testing accounts.
 func upgradeLocalNode(bin *utils.Binary, targetVersion string) error {

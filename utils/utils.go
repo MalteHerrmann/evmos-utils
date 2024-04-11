@@ -10,7 +10,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmosutils "github.com/evmos/evmos/v14/utils"
+	evmosutils "github.com/evmos/evmos/v17/utils"
 )
 
 // BinaryCmdArgs are the arguments passed to be executed with the Evmos binary.

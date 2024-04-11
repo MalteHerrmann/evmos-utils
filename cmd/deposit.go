@@ -31,8 +31,3 @@ If no proposal ID is given by the user, the latest proposal is queried and depos
 		bin.Logger.Info().Msgf("successfully deposited for proposal %d", proposalID)
 	},
 }
-
-//nolint:gochecknoinits // required by cobra
-func init() {
-	rootCmd.AddCommand(depositCmd)
-}

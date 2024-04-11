@@ -31,8 +31,3 @@ If no proposal ID is passed, the latest proposal on chain is queried and used.`,
 		bin.Logger.Info().Msgf("successfully submitted votes for proposal %d", proposalID)
 	},
 }
-
-//nolint:gochecknoinits // required by cobra
-func init() {
-	rootCmd.AddCommand(voteCmd)
-}

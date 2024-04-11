@@ -7,8 +7,8 @@ import (
 	"path"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
+	"github.com/evmos/evmos/v17/app"
+	"github.com/evmos/evmos/v17/encoding"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
