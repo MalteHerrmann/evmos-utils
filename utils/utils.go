@@ -110,7 +110,7 @@ func GetTxEvents(bin *Binary, out string) ([]sdk.StringEvent, error) {
 		nAttempts = 10
 	)
 
-	for i := 0; i < nAttempts; i++ {
+	for range nAttempts {
 		txOut, err = ExecuteBinaryCmd(bin, BinaryCmdArgs{
 			Subcommand: []string{"q", "tx", txHash, "--output=json"},
 			Quiet:      true,

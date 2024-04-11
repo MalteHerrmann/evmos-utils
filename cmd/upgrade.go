@@ -16,7 +16,7 @@ var upgradeCmd = &cobra.Command{
 	Long: `Prepare an upgrade of a node by submitting a governance proposal, 
 voting for it using all keys of in the keyring and having it pass.`,
 	Args: cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, args []string) {
 		bin, err := utils.NewEvmosTestingBinary()
 		if err != nil {
 			bin.Logger.Error().Msgf("error creating binary: %v", err)

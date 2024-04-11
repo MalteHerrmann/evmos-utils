@@ -13,7 +13,7 @@ var depositCmd = &cobra.Command{
 	Long: `Deposit the minimum needed deposit for a given governance proposal.
 If no proposal ID is given by the user, the latest proposal is queried and deposited for.`,
 	Args: cobra.RangeArgs(0, 1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, args []string) {
 		bin, err := utils.NewEvmosTestingBinary()
 		if err != nil {
 			bin.Logger.Error().Msgf("error creating binary: %v", err)

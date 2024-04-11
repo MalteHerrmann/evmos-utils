@@ -35,9 +35,9 @@ func TestParseDelegationsFromResponse(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
 			delegations, err := utils.ParseDelegationsFromResponse(cdc, tc.out)
 			if tc.expError {
 				require.Error(t, err, "expected error parsing delegations")
@@ -49,6 +49,7 @@ func TestParseDelegationsFromResponse(t *testing.T) {
 				for _, delegation := range delegations {
 					vals = append(vals, delegation.ValidatorAddress)
 				}
+
 				require.Equal(t, tc.expVals, vals, "expected different validators")
 			}
 		})

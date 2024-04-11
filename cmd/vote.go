@@ -13,7 +13,7 @@ var voteCmd = &cobra.Command{
 	Long: `Vote for a governance proposal with all keys in the keyring.
 If no proposal ID is passed, the latest proposal on chain is queried and used.`,
 	Args: cobra.RangeArgs(0, 1),
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, args []string) {
 		bin, err := utils.NewEvmosTestingBinary()
 		if err != nil {
 			bin.Logger.Error().Msgf("error creating binary: %v", err)

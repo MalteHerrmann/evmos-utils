@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	cryptokeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -42,7 +43,7 @@ func FilterAccountsWithDelegations(bin *Binary) ([]Account, error) {
 	var stakingAccs []Account
 
 	if len(bin.Accounts) == 0 {
-		return nil, fmt.Errorf("no accounts found")
+		return nil, errors.New("no accounts found")
 	}
 
 	for _, acc := range bin.Accounts {

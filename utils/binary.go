@@ -33,7 +33,7 @@ type Binary struct {
 func NewBinary(home, appd string, logger zerolog.Logger) (*Binary, error) {
 	// check if home directory exists
 	if _, err := os.Stat(home); os.IsNotExist(err) {
-		return nil, errors.Wrap(err, fmt.Sprintf("home directory does not exist: %s", home))
+		return nil, errors.Wrap(err, "home directory does not exist: "+home)
 	}
 
 	// check if binary is installed
