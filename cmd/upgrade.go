@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/MalteHerrmann/evmos-utils/gov"
@@ -16,28 +17,24 @@ var upgradeCmd = &cobra.Command{
 	Long: `Prepare an upgrade of a node by submitting a governance proposal, 
 voting for it using all keys of in the keyring and having it pass.`,
 	Args: cobra.ExactArgs(1),
-	Run: func(_ *cobra.Command, args []string) {
-		bin, err := utils.NewEvmosTestingBinary()
+	RunE: func(_ *cobra.Command, args []string) error {
+		bin, err := utils.NewBinary(collectConfig())
 		if err != nil {
-			bin.Logger.Error().Msgf("error creating binary: %v", err)
-
-			return
+			return errors.Wrap(err, "error creating binary")
 		}
 
 		targetVersion := args[0]
 		if matched, _ := regexp.MatchString(`v\d+\.\d+\.\d(-rc\d+)?`, targetVersion); !matched {
-			bin.Logger.Error().Msgf("invalid target version: %s; please use the format vX.Y.Z(-rc*).", targetVersion)
-
-			return
+			return fmt.Errorf("invalid target version: %s; please use the format vX.Y.Z(-rc*)", targetVersion)
 		}
 
-		if err := upgradeLocalNode(bin, targetVersion); err != nil {
-			bin.Logger.Error().Msgf("error upgrading local node: %v", err)
-
-			return
+		if err = upgradeLocalNode(bin, targetVersion); err != nil {
+			return errors.Wrap(err, "error upgrading local node")
 		}
 
 		bin.Logger.Info().Msgf("successfully prepared upgrade to %s", targetVersion)
+
+		return nil
 	},
 }
 

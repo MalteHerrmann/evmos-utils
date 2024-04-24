@@ -30,13 +30,12 @@ func Deposit(bin *utils.Binary, args []string) (int, error) {
 // DepositForProposal deposits the given amount for the proposal with the given proposalID
 // from the given account.
 func DepositForProposal(bin *utils.Binary, proposalID int, sender, deposit string) error {
-	_, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
+	_, err := utils.ExecuteTx(bin, utils.TxArgs{
 		Subcommand: []string{
 			"tx", "gov", "deposit", strconv.Itoa(proposalID), deposit,
 		},
-		From:        sender,
-		UseDefaults: true,
-		Quiet:       true,
+		From:  sender,
+		Quiet: true,
 	})
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("failed to deposit for proposal %d", proposalID))
@@ -48,7 +47,7 @@ func DepositForProposal(bin *utils.Binary, proposalID int, sender, deposit strin
 // GetMinDeposit returns the minimum deposit necessary for a proposal from the governance parameters of
 // the running chain.
 func GetMinDeposit(bin *utils.Binary) (sdk.Coins, error) {
-	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
+	out, err := utils.ExecuteQuery(bin, utils.QueryArgs{
 		Subcommand: []string{"q", "gov", "param", "deposit", "--output=json"},
 		Quiet:      true,
 	})

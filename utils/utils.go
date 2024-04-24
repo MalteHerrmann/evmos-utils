@@ -10,38 +10,66 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmosutils "github.com/evmos/evmos/v17/utils"
 )
+
+// QueryArgs are the arguments passed to a CLI query.
+type QueryArgs struct {
+	Subcommand []string
+	Quiet      bool
+}
+
+// ExecuteQueryCmd executes a query command.
+func ExecuteQuery(bin *Binary, args QueryArgs) (string, error) {
+	queryCommand := args.Subcommand
+	queryCommand = append(queryCommand, "--node", bin.Config.Node)
+
+	return ExecuteBinaryCmd(bin, BinaryCmdArgs{
+		Subcommand: queryCommand,
+		Quiet:      args.Quiet,
+	})
+}
+
+// TxArgs are the arguments passed to a CLI transaction.
+type TxArgs struct {
+	Subcommand []string
+	From       string
+	Quiet      bool
+}
+
+// ExecuteTx executes a transaction using the given binary.
+func ExecuteTx(bin *Binary, args TxArgs) (string, error) {
+	txCommand := args.Subcommand
+	txCommand = append(txCommand,
+		"--node", bin.Config.Node,
+		"--home", bin.Config.Home,
+		"--from", args.From,
+		"--keyring-backend", bin.Config.KeyringBackend,
+		"--gas", "auto",
+		"--fees", fmt.Sprintf("%d%s", defaultFees, bin.Config.Denom),
+		"--gas-adjustment", "1.3",
+		"-b", "sync",
+		"-y",
+	)
+
+	return ExecuteBinaryCmd(bin, BinaryCmdArgs{
+		Subcommand: txCommand,
+		Quiet:      args.Quiet,
+	})
+}
 
 // BinaryCmdArgs are the arguments passed to be executed with the Evmos binary.
 type BinaryCmdArgs struct {
-	Subcommand  []string
-	Home        string
-	From        string
-	UseDefaults bool
-	Quiet       bool
+	Subcommand []string
+	Quiet      bool
 }
 
 // ExecuteBinaryCmd executes a shell command and returns the output and error.
 func ExecuteBinaryCmd(bin *Binary, args BinaryCmdArgs) (string, error) {
 	fullCommand := args.Subcommand
-	if args.Home == "" {
-		fullCommand = append(fullCommand, "--home", bin.Home)
-	} else {
-		fullCommand = append(fullCommand, "--home", args.Home)
-	}
 
-	if args.From != "" {
-		fullCommand = append(fullCommand, "--from", args.From)
-	}
-
-	if args.UseDefaults {
-		defaultFlags := getDefaultFlags()
-		fullCommand = append(fullCommand, defaultFlags...)
-	}
-
+	fmt.Println("Command: ", bin.Config.Appd, strings.Join(fullCommand, " "))
 	//#nosec G204 // no risk of injection here because only internal commands are passed
-	cmd := exec.Command(bin.Appd, fullCommand...)
+	cmd := exec.Command(bin.Config.Appd, fullCommand...)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil && !args.Quiet {
@@ -51,27 +79,10 @@ func ExecuteBinaryCmd(bin *Binary, args BinaryCmdArgs) (string, error) {
 	return string(output), err
 }
 
-// getDefaultFlags returns the default flags to be used for the Evmos binary.
-func getDefaultFlags() []string {
-	chainID := evmosutils.TestnetChainID + "-1"
-
-	defaultFlags := []string{
-		"--chain-id", chainID,
-		"--keyring-backend", "test",
-		"--gas", "auto",
-		"--fees", fmt.Sprintf("%d%s", defaultFees, denom),
-		"--gas-adjustment", "1.3",
-		"-b", "sync",
-		"-y",
-	}
-
-	return defaultFlags
-}
-
 // GetCurrentHeight returns the current block height of the node.
 func GetCurrentHeight(bin *Binary) (int, error) {
-	output, err := ExecuteBinaryCmd(bin, BinaryCmdArgs{
-		Subcommand: []string{"q", "block", "--node", "http://localhost:26657"},
+	output, err := ExecuteQuery(bin, QueryArgs{
+		Subcommand: []string{"q", "block"},
 	})
 	if err != nil {
 		return 0, fmt.Errorf("error executing command: %w", err)
@@ -111,7 +122,7 @@ func GetTxEvents(bin *Binary, out string) ([]sdk.StringEvent, error) {
 	)
 
 	for range nAttempts {
-		txOut, err = ExecuteBinaryCmd(bin, BinaryCmdArgs{
+		txOut, err = ExecuteQuery(bin, QueryArgs{
 			Subcommand: []string{"q", "tx", txHash, "--output=json"},
 			Quiet:      true,
 		})

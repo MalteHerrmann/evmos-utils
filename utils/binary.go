@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/evmos/evmos/v17/app"
@@ -17,29 +18,58 @@ import (
 // Binary is a struct to hold the necessary information to execute commands
 // using a Cosmos SDK-based binary.
 type Binary struct {
-	// Cdc is the codec to be used for the client.
-	Cdc *codec.ProtoCodec
-	// Home is the home directory of the binary.
-	Home string
-	// Appd is the name of the binary to be executed, e.g. "evmosd".
-	Appd string
 	// Accounts are the accounts stored in the local keyring.
 	Accounts []Account
+	// Cdc is the codec to be used for the client.
+	Cdc *codec.ProtoCodec
+
+	// Config is the configuration of the binary
+	Config BinaryConfig
+
 	// Logger is a logger to be used within all commands.
 	Logger zerolog.Logger
 }
 
+// BinaryConfig holds the configuration of the binary.
+type BinaryConfig struct {
+	// Appd is the name of the binary to be executed, e.g. "evmosd".
+	Appd string
+	// ChainID is the chain ID of the network.
+	ChainID string
+	// Denom for the fee payments on transactions
+	Denom string
+	// Home is the home directory of the binary.
+	Home string
+	// KeyringBackend defines which keyring to use
+	KeyringBackend string
+	// Node is the endpoint for gRPC connections
+	Node string
+}
+
 // NewBinary returns a new Binary instance.
-func NewBinary(home, appd string, logger zerolog.Logger) (*Binary, error) {
-	// check if home directory exists
-	if _, err := os.Stat(home); os.IsNotExist(err) {
-		return nil, errors.Wrap(err, "home directory does not exist: "+home)
+func NewBinary(config BinaryConfig) (*Binary, error) {
+	userHome, err := os.UserHomeDir()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get user home dir")
 	}
 
+	// strip the home directory from the given home if already included
+	var homeDir string
+	if strings.Contains(config.Home, userHome) {
+		homeDir = config.Home
+	} else {
+		homeDir = filepath.Join(userHome, config.Home)
+	}
+
+	if _, err = os.Stat(homeDir); os.IsNotExist(err) {
+		return nil, errors.Wrap(err, "home directory does not exist: "+homeDir)
+	}
+
+	config.Home = homeDir
+
 	// check if binary is installed
-	_, err := exec.LookPath(appd)
-	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("binary %q not installed", appd))
+	if _, err = exec.LookPath(config.Appd); err != nil {
+		return nil, fmt.Errorf("binary %q not installed", config.Appd)
 	}
 
 	cdc, ok := GetCodec()
@@ -47,36 +77,19 @@ func NewBinary(home, appd string, logger zerolog.Logger) (*Binary, error) {
 		return nil, errors.Wrap(err, "failed to get codec")
 	}
 
-	return &Binary{
-		Cdc:    cdc,
-		Home:   home,
-		Appd:   appd,
-		Logger: logger,
-	}, nil
-}
-
-// NewEvmosTestingBinary returns a new Binary instance with the default home and appd
-// setup for the Evmos local node testing setup.
-func NewEvmosTestingBinary() (*Binary, error) {
 	logger := log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 
-	userHome, err := os.UserHomeDir()
-	if err != nil {
-		return &Binary{Logger: logger}, errors.Wrap(err, "failed to get user home dir")
+	binary := &Binary{
+		Cdc:    cdc,
+		Config: config,
+		Logger: logger,
 	}
 
-	defaultEvmosdHome := path.Join(userHome, ".tmp-evmosd")
-
-	bin, err := NewBinary(defaultEvmosdHome, "evmosd", logger)
-	if err != nil {
+	if err = binary.getAccounts(); err != nil {
 		return nil, err
 	}
 
-	if err = bin.GetAccounts(); err != nil {
-		return nil, err
-	}
-
-	return bin, nil
+	return binary, nil
 }
 
 // GetCodec returns the codec to be used for the client.

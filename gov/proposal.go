@@ -12,13 +12,13 @@ import (
 )
 
 // buildUpgradeProposalCommand builds the command to submit a software upgrade proposal.
-func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []string {
+func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int, denom string) []string {
 	return []string{
 		"tx", "gov", "submit-legacy-proposal", "software-upgrade", targetVersion,
 		"--title", fmt.Sprintf("'Upgrade to %s'", targetVersion),
 		"--description", fmt.Sprintf("'Upgrade to %s'", targetVersion),
 		"--upgrade-height", strconv.Itoa(upgradeHeight),
-		"--deposit", "100000000000000000000aevmos",
+		"--deposit", "100000000000000000000" + denom,
 		"--output", "json",
 		"--no-validate",
 	}
@@ -49,7 +49,7 @@ func GetProposalIDFromSubmitEvents(events []sdk.StringEvent) (int, error) {
 
 // QueryLatestProposalID queries the latest proposal ID.
 func QueryLatestProposalID(bin *utils.Binary) (int, error) {
-	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
+	out, err := utils.ExecuteQuery(bin, utils.QueryArgs{
 		Subcommand: []string{"q", "gov", "proposals", "--output=json"},
 		Quiet:      true,
 	})
@@ -79,12 +79,11 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 
 // SubmitUpgradeProposal submits a software upgrade proposal with the given target version and upgrade height.
 func SubmitUpgradeProposal(bin *utils.Binary, targetVersion string, upgradeHeight int) (int, error) {
-	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight)
+	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight, bin.Config.Denom)
 
-	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
-		Subcommand:  upgradeProposal,
-		From:        "dev0",
-		UseDefaults: true,
+	out, err := utils.ExecuteTx(bin, utils.TxArgs{
+		Subcommand: upgradeProposal,
+		From:       "dev0",
 	})
 	if err != nil {
 		return 0, errors.Wrap(err,

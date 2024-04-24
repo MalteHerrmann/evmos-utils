@@ -16,6 +16,8 @@ linters:
     # discontinued linters
     - deadcode
     - exhaustivestruct
+    - gochecknoglobals
+    - gochecknoinits
     - golint
     - ifshort
     - interfacer

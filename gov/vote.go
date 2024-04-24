@@ -57,11 +57,10 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 
 // VoteForProposal votes for the proposal with the given ID using the given account.
 func VoteForProposal(bin *utils.Binary, proposalID int, sender string) (string, error) {
-	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
-		Subcommand:  []string{"tx", "gov", "vote", strconv.Itoa(proposalID), "yes"},
-		From:        sender,
-		UseDefaults: true,
-		Quiet:       true,
+	out, err := utils.ExecuteTx(bin, utils.TxArgs{
+		Subcommand: []string{"tx", "gov", "vote", strconv.Itoa(proposalID), "yes"},
+		From:       sender,
+		Quiet:      true,
 	})
 	if err != nil {
 		return out, errors.Wrap(err, fmt.Sprintf("failed to vote for proposal %d", proposalID))
