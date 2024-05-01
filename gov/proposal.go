@@ -12,13 +12,12 @@ import (
 )
 
 // buildUpgradeProposalCommand builds the command to submit a software upgrade proposal.
-func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int, denom string) []string {
+func buildUpgradeProposalCommand(targetVersion string, upgradeHeight int) []string {
 	return []string{
 		"tx", "gov", "submit-legacy-proposal", "software-upgrade", targetVersion,
 		"--title", fmt.Sprintf("'Upgrade to %s'", targetVersion),
 		"--description", fmt.Sprintf("'Upgrade to %s'", targetVersion),
 		"--upgrade-height", strconv.Itoa(upgradeHeight),
-		"--deposit", "100000000000000000000" + denom,
 		"--output", "json",
 		"--no-validate",
 	}
@@ -79,11 +78,11 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 
 // SubmitUpgradeProposal submits a software upgrade proposal with the given target version and upgrade height.
 func SubmitUpgradeProposal(bin *utils.Binary, targetVersion string, upgradeHeight int) (int, error) {
-	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight, bin.Config.Denom)
+	upgradeProposal := buildUpgradeProposalCommand(targetVersion, upgradeHeight)
 
 	out, err := utils.ExecuteTx(bin, utils.TxArgs{
 		Subcommand: upgradeProposal,
-		From:       "dev0",
+		From:       bin.Accounts[0].Name,
 	})
 	if err != nil {
 		return 0, errors.Wrap(err,

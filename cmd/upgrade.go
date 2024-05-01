@@ -57,6 +57,10 @@ func upgradeLocalNode(bin *utils.Binary, targetVersion string) error {
 
 	bin.Logger.Info().Msgf("scheduled upgrade to %s at height %d.\n", targetVersion, upgradeHeight)
 
+	if _, err = gov.Deposit(bin, []string{}); err != nil {
+		return errors.Wrapf(err, "error depositing for proposal %d", proposalID)
+	}
+
 	if err = gov.SubmitAllVotesForProposal(bin, proposalID); err != nil {
 		return errors.Wrapf(err, "error submitting votes for proposal %d", proposalID)
 	}
