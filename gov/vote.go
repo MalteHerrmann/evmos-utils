@@ -31,7 +31,7 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 	}
 
 	if err := utils.WaitNBlocks(bin, 1); err != nil {
-		return err
+		return errors.Wrapf(err, "error waiting for blocks")
 	}
 
 	bin.Logger.Info().Msgf("voting for proposal %d", proposalID)
@@ -55,7 +55,8 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 			bin.Logger.Error().Msgf("could not vote using key %s: %v", acc.Name, err)
 		} else {
 			bin.Logger.Info().Msgf("voted using key %s", acc.Name)
-			successfulVotes += 1
+
+			successfulVotes++
 		}
 	}
 

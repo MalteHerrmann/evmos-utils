@@ -67,7 +67,6 @@ type BinaryCmdArgs struct {
 func ExecuteBinaryCmd(bin *Binary, args BinaryCmdArgs) (string, error) {
 	fullCommand := args.Subcommand
 
-	fmt.Println("Command: ", bin.Config.Appd, strings.Join(fullCommand, " "))
 	//#nosec G204 // no risk of injection here because only internal commands are passed
 	cmd := exec.Command(bin.Config.Appd, fullCommand...)
 
@@ -192,21 +191,22 @@ func GetTxHashFromTxResponse(cdc *codec.ProtoCodec, out string) (string, error) 
 
 // WaitNBlocks waits for the specified amount of blocks being produced
 // on the connected network.
-func WaitNBlocks(bin *Binary, n int) error {
+func WaitNBlocks(bin *Binary, nBlocks int) error {
 	currentHeight, err := GetCurrentHeight(bin)
 	if err != nil {
 		return err
 	}
 
 	for {
-		bin.Logger.Debug().Msgf("waiting for %d blocks\n", n)
+		bin.Logger.Debug().Msgf("waiting for %d blocks\n", nBlocks)
 		time.Sleep(2 * time.Second)
+
 		height, err := GetCurrentHeight(bin)
 		if err != nil {
 			return err
 		}
 
-		if height >= currentHeight+n {
+		if height >= currentHeight+nBlocks {
 			break
 		}
 	}
