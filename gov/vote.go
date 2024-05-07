@@ -30,10 +30,16 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 		return errors.New("no accounts with delegations found")
 	}
 
-	utils.Wait(1)
+	if err := utils.WaitNBlocks(bin, 1); err != nil {
+		return err
+	}
+
 	bin.Logger.Info().Msgf("voting for proposal %d", proposalID)
 
-	var out string
+	var (
+		out             string
+		successfulVotes int
+	)
 
 	for _, acc := range accsWithDelegations {
 		out, err = VoteForProposal(bin, proposalID, acc.Name)
@@ -49,7 +55,12 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 			bin.Logger.Error().Msgf("could not vote using key %s: %v", acc.Name, err)
 		} else {
 			bin.Logger.Info().Msgf("voted using key %s", acc.Name)
+			successfulVotes += 1
 		}
+	}
+
+	if successfulVotes == 0 {
+		return errors.New("there were no successful votes for the proposal, please check logs")
 	}
 
 	return nil

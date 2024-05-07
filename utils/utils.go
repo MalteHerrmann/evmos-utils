@@ -80,6 +80,9 @@ func ExecuteBinaryCmd(bin *Binary, args BinaryCmdArgs) (string, error) {
 }
 
 // GetCurrentHeight returns the current block height of the node.
+//
+// NOTE: Because the response contains uint64 values encoded as strings, this cannot be unmarshalled
+// from the BlockResult type. Instead, we use a regex to extract the height from the response.
 func GetCurrentHeight(bin *Binary) (int, error) {
 	output, err := ExecuteQuery(bin, QueryArgs{
 		Subcommand: []string{"q", "block"},
@@ -187,7 +190,26 @@ func GetTxHashFromTxResponse(cdc *codec.ProtoCodec, out string) (string, error) 
 	return txHash.TxHash, nil
 }
 
-// Wait waits for the specified amount of seconds.
-func Wait(seconds int) {
-	time.Sleep(time.Duration(seconds) * time.Second)
+// WaitNBlocks waits for the specified amount of blocks being produced
+// on the connected network.
+func WaitNBlocks(bin *Binary, n int) error {
+	currentHeight, err := GetCurrentHeight(bin)
+	if err != nil {
+		return err
+	}
+
+	for {
+		bin.Logger.Debug().Msgf("waiting for %d blocks\n", n)
+		time.Sleep(2 * time.Second)
+		height, err := GetCurrentHeight(bin)
+		if err != nil {
+			return err
+		}
+
+		if height >= currentHeight+n {
+			break
+		}
+	}
+
+	return nil
 }
