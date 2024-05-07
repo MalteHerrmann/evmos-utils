@@ -59,3 +59,19 @@ and places the deposit on behalf of the first account in the test keyring.
 evmos-utils deposit [PROPOSAL_ID]
 ```
 
+## Configuration
+
+By default, the tool is using settings related to the Evmos network.
+However, through CLI flags it is also possible to use this tool to upgrade other networks.
+Detailed information is given in the help output of the commands.
+
+An example for a custom development chain can be found hereafter:
+
+```bash
+evmos-utils upgrade v1.1.0 \
+--chain-id mychain_1234-1 \
+--bin chaind \
+--home /path/to/chaind \
+--node http://localhost:26657 \
+--keyring-backend test
+```
