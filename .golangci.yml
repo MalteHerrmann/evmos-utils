@@ -9,34 +9,21 @@ linters:
   disable:
     # unwanted linters
     - depguard # would have loved to add but doesn't seem to work correctly
+    - err113
     - exhaustruct
-    - gomoddirectives
-    - goerr113
+    - gochecknoglobals
+    - gochecknoinits
     - gomnd
-    # discontinued linters
-    - deadcode
-    - exhaustivestruct
-    - golint
-    - ifshort
-    - interfacer
-    - nosnakecase
-    - maligned
-    - scopelint
-    - structcheck
-    - varcheck
+    - gomoddirectives
+    - mnd
 
 linters-settings:
   dogsled:
-    max-blank-identifiers: 3
-  gofumpt:
-    lang-version: "1.21"
-  maligned:
-    suggest-new: true
+    max-blank-identifiers: 1
   misspell:
     locale: US
   nolintlint:
     allow-unused: false
-    allow-leading-space: true
     require-explanation: true
     require-specific: true
   varnamelen:

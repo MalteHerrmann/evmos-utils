@@ -30,10 +30,16 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 		return errors.New("no accounts with delegations found")
 	}
 
-	utils.Wait(1)
+	if err := utils.WaitNBlocks(bin, 1); err != nil {
+		return errors.Wrapf(err, "error waiting for blocks")
+	}
+
 	bin.Logger.Info().Msgf("voting for proposal %d", proposalID)
 
-	var out string
+	var (
+		out             string
+		successfulVotes int
+	)
 
 	for _, acc := range accsWithDelegations {
 		out, err = VoteForProposal(bin, proposalID, acc.Name)
@@ -49,7 +55,13 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 			bin.Logger.Error().Msgf("could not vote using key %s: %v", acc.Name, err)
 		} else {
 			bin.Logger.Info().Msgf("voted using key %s", acc.Name)
+
+			successfulVotes++
 		}
+	}
+
+	if successfulVotes == 0 {
+		return errors.New("there were no successful votes for the proposal, please check logs")
 	}
 
 	return nil
@@ -57,11 +69,10 @@ func SubmitAllVotesForProposal(bin *utils.Binary, proposalID int) error {
 
 // VoteForProposal votes for the proposal with the given ID using the given account.
 func VoteForProposal(bin *utils.Binary, proposalID int, sender string) (string, error) {
-	out, err := utils.ExecuteBinaryCmd(bin, utils.BinaryCmdArgs{
-		Subcommand:  []string{"tx", "gov", "vote", strconv.Itoa(proposalID), "yes"},
-		From:        sender,
-		UseDefaults: true,
-		Quiet:       true,
+	out, err := utils.ExecuteTx(bin, utils.TxArgs{
+		Subcommand: []string{"tx", "gov", "vote", strconv.Itoa(proposalID), "yes"},
+		From:       sender,
+		Quiet:      true,
 	})
 	if err != nil {
 		return out, errors.Wrap(err, fmt.Sprintf("failed to vote for proposal %d", proposalID))

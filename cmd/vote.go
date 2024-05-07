@@ -14,7 +14,7 @@ var voteCmd = &cobra.Command{
 If no proposal ID is passed, the latest proposal on chain is queried and used.`,
 	Args: cobra.RangeArgs(0, 1),
 	Run: func(_ *cobra.Command, args []string) {
-		bin, err := utils.NewEvmosTestingBinary()
+		bin, err := utils.NewBinary(collectConfig())
 		if err != nil {
 			bin.Logger.Error().Msgf("error creating binary: %v", err)
 

@@ -14,7 +14,7 @@ var depositCmd = &cobra.Command{
 If no proposal ID is given by the user, the latest proposal is queried and deposited for.`,
 	Args: cobra.RangeArgs(0, 1),
 	Run: func(_ *cobra.Command, args []string) {
-		bin, err := utils.NewEvmosTestingBinary()
+		bin, err := utils.NewBinary(collectConfig())
 		if err != nil {
 			bin.Logger.Error().Msgf("error creating binary: %v", err)
 
