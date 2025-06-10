@@ -1,3 +1,5 @@
+// Package cmd contains the required logic to run the individual subcommands
+// for the evmos-utils.
 package cmd
 
 import (
@@ -25,6 +27,8 @@ It can be used to test upgrades, deposit or vote for specific or the latest prop
 	chainID string
 	// denom of the chain's fee token.
 	denom string
+	// feeAmount is the amount of fees to send with a default transaction.
+	feeAmount int
 	// home is the home directory of the binary.
 	home string
 	// keyringBackend is the keyring to use.
@@ -71,6 +75,12 @@ func init() {
 		"http://localhost:26657",
 		"Node to post queries and transactions to",
 	)
+	rootCmd.PersistentFlags().IntVar(
+		&feeAmount,
+		"fees",
+		utils.GetDefaultFees(),
+		"Amount of fees to send with a default transaction",
+	)
 
 	rootCmd.AddCommand(upgradeCmd)
 	rootCmd.AddCommand(depositCmd)
@@ -84,6 +94,7 @@ func collectConfig() utils.BinaryConfig {
 		Appd:           appd,
 		ChainID:        chainID,
 		Denom:          denom,
+		FeeAmount:      feeAmount,
 		Home:           home,
 		KeyringBackend: keyringBackend,
 		Node:           node,

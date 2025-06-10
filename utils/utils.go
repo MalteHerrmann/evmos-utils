@@ -18,7 +18,7 @@ type QueryArgs struct {
 	Quiet      bool
 }
 
-// ExecuteQueryCmd executes a query command.
+// ExecuteQuery executes a query command against a given binary.
 func ExecuteQuery(bin *Binary, args QueryArgs) (string, error) {
 	queryCommand := args.Subcommand
 	queryCommand = append(queryCommand, "--node", bin.Config.Node)
@@ -45,11 +45,13 @@ func ExecuteTx(bin *Binary, args TxArgs) (string, error) {
 		"--from", args.From,
 		"--keyring-backend", bin.Config.KeyringBackend,
 		"--gas", "auto",
-		"--fees", fmt.Sprintf("%d%s", defaultFees, bin.Config.Denom),
+		"--fees", fmt.Sprintf("%d%s", bin.Config.FeeAmount, bin.Config.Denom),
 		"--gas-adjustment", "1.3",
 		"-b", "sync",
 		"-y",
 	)
+
+	bin.Logger.Info().Msgf("executing transaction with command: %s", strings.Join(txCommand, " "))
 
 	return ExecuteBinaryCmd(bin, BinaryCmdArgs{
 		Subcommand: txCommand,

@@ -1,31 +1,16 @@
-run:
-  tests: true
-  timeout: 5m
-  concurrency: 4
-  modules-download-mode: readonly
-
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
-    # unwanted linters
-    - depguard # would have loved to add but doesn't seem to work correctly
+    - depguard
     - err113
-    - exhaustruct
+    - exhaustruct # requires every field to be instantiated in e.g. struct creation
     - gochecknoglobals
-    - gochecknoinits
-    - gomnd
     - gomoddirectives
     - mnd
-
-linters-settings:
-  dogsled:
-    max-blank-identifiers: 1
-  misspell:
-    locale: US
-  nolintlint:
-    allow-unused: false
-    require-explanation: true
-    require-specific: true
-  varnamelen:
-    ignore-names:
-      - tc
+    - varnamelen
+formatters:
+  enable:
+    - gofumpt
+run:
+  go: "1.23"

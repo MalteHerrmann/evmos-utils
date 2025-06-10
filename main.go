@@ -1,3 +1,4 @@
+// Package main orchestrates the execution of the evmos-utils.
 package main
 
 import (

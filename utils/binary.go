@@ -1,3 +1,5 @@
+// Package utils contains different helper types and functions
+// to make handling of the gRPC responses easier and handle different binaries, etc..
 package utils
 
 import (
@@ -38,6 +40,8 @@ type BinaryConfig struct {
 	ChainID string
 	// Denom for the fee payments on transactions
 	Denom string
+	// FeeAmount is the amount of fees send with a default transaction.
+	FeeAmount int
 	// Home is the home directory of the binary.
 	Home string
 	// KeyringBackend defines which keyring to use
