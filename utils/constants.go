@@ -6,3 +6,8 @@ const (
 	// DeltaHeight is the amount of blocks in the future that the upgrade will be scheduled.
 	DeltaHeight = 20
 )
+
+// GetDefaultFees returns the value for the default amount of fees being sent with transactions.
+func GetDefaultFees() int {
+	return defaultFees
+}

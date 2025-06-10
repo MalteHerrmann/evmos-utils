@@ -73,6 +73,7 @@ func QueryLatestProposalID(bin *utils.Binary) (int, error) {
 		return 0, errors.New("no proposals found")
 	}
 
+	//#nosec G115 // proposal id won't exceed int32
 	return int(res.Proposals[len(res.Proposals)-1].Id), nil
 }
 

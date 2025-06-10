@@ -5,10 +5,10 @@ install:
 
 # ----------------------------------
 # Linting
+LINT_IMAGE=golangci/golangci-lint:v2.1.6
 lint:
 	@echo "Running golangci-lint..." && \
-	golangci-lint run && \
-	echo " > Done."
+	docker run -t --rm -v $(CURDIR):/app -w /app $(LINT_IMAGE) golangci-lint run
 
 # ----------------------------------
 # Tests

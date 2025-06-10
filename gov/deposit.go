@@ -1,3 +1,5 @@
+// Package gov contains all logic related to governance queries and transactions
+// like voting and checking minimum deposits, etc.
 package gov
 
 import (
@@ -61,8 +63,8 @@ func GetMinDeposit(bin *utils.Binary) (sdk.Coins, error) {
 // ParseMinDepositFromResponse parses the minimum deposit from the given output of the governance
 // parameters query.
 //
-// FIXME: It wasn't possible to unmarshal the JSON output of the query because of a missing unit in the max_deposit_period
-// parameter. This should rather be done using GRPC.
+// NOTE: It wasn't possible to unmarshal the JSON output of the query because of a missing unit in the
+// max_deposit_period parameter. This could instead be done using GRPC.
 func ParseMinDepositFromResponse(out string) (sdk.Coins, error) {
 	depositPatternRaw := `min_deposit":\[{"denom":"(\w+)","amount":"(\d+)`
 	depositPattern := regexp.MustCompile(depositPatternRaw)
